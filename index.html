@@ -48,9 +48,39 @@ main{min-width:0}.topbar{height:72px;background:#fff;border-bottom:1px solid var
 .db-modal-form label{display:flex;flex-direction:column;gap:6px;font-weight:600;font-size:12px}
 .db-modal-form input,.db-modal-form select,.db-modal-form textarea{border:1px solid #d6e3da;border-radius:9px;padding:10px;background:#fff;color:#173327;width:100%}
 @media(max-width:700px){.menu-source-controls{width:100%}.compact-select{flex:1;min-width:130px}.db-modal-form{grid-template-columns:1fr}}
+
+#fm-owner-auth{position:fixed;inset:0;z-index:99999;background:#f5f8f6;display:flex;align-items:center;justify-content:center;padding:20px}
+#fm-owner-login-form{width:min(100%,420px);background:#fff;border:1px solid #dfe8e2;border-radius:20px;padding:30px;box-shadow:0 24px 70px #17332714}
+.fm-auth-logo{width:52px;height:52px;border-radius:15px;background:#ecfdf5;color:#059669;display:grid;place-items:center;font-size:24px;margin-bottom:18px}
+.fm-auth-eyebrow{font-size:11px;letter-spacing:1.5px;font-weight:800;color:#059669}
+#fm-auth-title{font-size:28px;margin:8px 0;color:#173327}
+.fm-auth-subtitle,.fm-auth-foot{font-size:13px;line-height:1.6;color:#718078}
+#fm-owner-login-form label{display:block;font-size:12px;font-weight:700;margin:16px 0 7px;color:#173327}
+#fm-owner-login-form input{display:block;width:100%;border:1px solid #d6e3da;border-radius:10px;padding:12px 13px;background:#fff;color:#173327;outline-color:#059669}
+#fm-auth-submit{margin-top:20px;width:100%;border:0;border-radius:10px;background:#059669;color:white;font-weight:800;padding:13px}
+#fm-auth-submit:disabled{opacity:.65;cursor:wait}
+#fm-auth-error{color:#b91c1c;font-size:12px;line-height:1.5;margin-top:12px}
+.fm-auth-foot{margin:18px 0 0}
 </style>
 </head>
 <body>
+
+<div id="fm-owner-auth" role="dialog" aria-modal="true" aria-labelledby="fm-auth-title">
+ <form id="fm-owner-login-form" autocomplete="on">
+  <div class="fm-auth-logo"><i class="fa-solid fa-cloud-bolt"></i></div>
+  <div class="fm-auth-eyebrow">FREEMENU RESTAURANT POS</div>
+  <h1 id="fm-auth-title">Restaurant login</h1>
+  <p class="fm-auth-subtitle">Apne restaurant ke registered email aur password se login karein.</p>
+  <label for="fm-auth-email">Registered email</label>
+  <input id="fm-auth-email" type="email" autocomplete="username" placeholder="owner@restaurant.com" required>
+  <label for="fm-auth-password">Password</label>
+  <input id="fm-auth-password" type="password" autocomplete="current-password" placeholder="Enter your password" required>
+  <button id="fm-auth-submit" type="submit">Login to POS <i class="fa-solid fa-arrow-right"></i></button>
+  <div id="fm-auth-error" role="alert"></div>
+  <p class="fm-auth-foot">Wahi login use karein jo aapke FreeMenu restaurant account ke liye registered hai.</p>
+ </form>
+</div>
+
 <div class="app">
 <aside class="sidebar" id="sidebar">
  <div class="brand"><div style="text-align:center"><i class="fa-solid fa-cloud-bolt"></i><small style="display:block">FREEMENU POS</small></div></div>
@@ -341,21 +371,27 @@ renderOps();renderSettings();renderMenu();renderCart();renderTickets();renderRep
  const categoryOf = m => m.category || m.cat || "Other";
  const mapItem = m => ({...m, name:m.name || m.item_name || "Unnamed item", category:categoryOf(m), price:priceOf(m), veg: m.is_veg === true || m.veg === true, stock: m.is_available !== false && m.available !== false && m.is_active !== false && m.stock !== false, icon:"fa-bowl-food"});
 
- async function loadRestaurants() {
+ async function loadRestaurants(user) {
    if (!db) throw new Error("Supabase JS library load nahi hui. Internet connection check karein.");
+   if (!user?.id) throw new Error("Login session nahi mili. Dobara login karein.");
    const select = byId("supabase-restaurant");
-   select.innerHTML = '<option value="">Loading restaurants…</option>';
-   const {data,error} = await db.from("restaurants").select("*").order("name",{ascending:true});
+   select.innerHTML = '<option value="">Loading your restaurant…</option>';
+   // IMPORTANT: never fetch the platform-wide restaurant list for a normal POS login.
+   // Use the same owner_id relationship as the existing FreeMenu Owner Panel.
+   const {data,error} = await db.from("restaurants").select("*").eq("owner_id", user.id).limit(20);
    if (error) throw error;
    outlets = data || [];
    if (!outlets.length) {
-     select.innerHTML = '<option value="">No restaurants found</option>';
-     throw new Error("Supabase restaurants table mein koi restaurant visible nahi hai. RLS policies check karein.");
+     select.innerHTML = '<option value="">Restaurant not linked</option>';
+     throw new Error("Is login se koi restaurant linked nahi mila. FreeMenu Owner Panel mein check karein ki restaurants.owner_id aapke logged-in account se linked hai. Data ko email guess karke kisi doosre restaurant se link nahi kiya gaya.");
    }
+   // Most owners have one restaurant. If more than one is linked to the same owner,
+   // show only those linked restaurants, never all restaurants in the database.
    select.innerHTML = outlets.map(r => `<option value="${safe(r.id)}">${safe(getRestaurantName(r))}</option>`).join("");
    const remembered = localStorage.getItem("fm-pos-restaurant-id");
    selectedOutlet = outlets.some(r => String(r.id)===remembered) ? remembered : String(outlets[0].id);
    select.value = selectedOutlet;
+   select.disabled = outlets.length < 2;
    await loadMenu();
  }
  async function loadMenu() {
@@ -465,12 +501,68 @@ renderOps();renderSettings();renderMenu();renderCart();renderTickets();renderRep
  // Keep the regular cart renderer intact; add-item buttons now resolve against Supabase menu.
  const originalNavigate = navigate;
  window.navigate = function(view){ originalNavigate(view); if(view==="billing" && liveMenu.length)renderMenu(); };
- loadRestaurants().catch(err=>{
-   console.error("Supabase initialization failed:",err);
-   byId("menu-count").textContent="Supabase unavailable";
-   const host=byId("menu-grid");
-   if(host)host.innerHTML=`<div class="empty" style="grid-column:1/-1">Supabase se menu load nahi hua: ${safe(err.message)}<br><small>Check internet, table permissions/RLS, and public SELECT policy. Demo menu ko live database samajhkar use nahi kiya jayega.</small></div>`;
+ const authGate = byId("fm-owner-auth");
+ const loginForm = byId("fm-owner-login-form");
+ const loginError = byId("fm-auth-error");
+ const loginButton = byId("fm-auth-submit");
+ let authenticatedUser = null;
+
+ function showLogin(message="") {
+   authGate.style.display = "flex";
+   loginError.textContent = message;
+   loginButton.disabled = false;
+   loginButton.innerHTML = 'Login to POS <i class="fa-solid fa-arrow-right"></i>';
+ }
+ function hideLogin() { authGate.style.display = "none"; }
+ async function startOwnerPOS(user) {
+   authenticatedUser = user;
+   try {
+     await loadRestaurants(user);
+     hideLogin();
+     // Replace all sample/demo menu data with the database menu for this owner.
+     state.cart = [];
+     renderCart();
+     if (typeof navigate === "function") navigate("billing");
+     byId("fm-owner-account-email")?.remove();
+     const head = document.querySelector(".menu-panel-head");
+     if (head && !byId("fm-owner-account-email")) {
+       const badge = document.createElement("span");
+       badge.id = "fm-owner-account-email";
+       badge.className = "menu-sync-status";
+       badge.textContent = user.email || "Logged in";
+       head.appendChild(badge);
+     }
+   } catch (err) {
+     console.error("Restaurant POS startup failed:", err);
+     showLogin(err.message || "Restaurant data load nahi hua.");
+   }
+ }
+ loginForm.addEventListener("submit", async e => {
+   e.preventDefault();
+   loginError.textContent = "";
+   loginButton.disabled = true;
+   loginButton.textContent = "Signing in…";
+   const email = byId("fm-auth-email").value.trim();
+   const password = byId("fm-auth-password").value;
+   try {
+     const {data,error} = await db.auth.signInWithPassword({email,password});
+     if (error) throw error;
+     if (!data?.user) throw new Error("Login session nahi mili. Dobara try karein.");
+     await startOwnerPOS(data.user);
+   } catch (err) {
+     console.error("POS login failed:",err);
+     showLogin(err.message || "Login failed. Email/password check karein.");
+   }
  });
+ // Require explicit login each time the POS page is opened, matching the Owner Panel.
+ // Any prior Supabase session is signed out on page load so this screen never skips login.
+ (async () => {
+   if (!db) return showLogin("Supabase library load nahi hui. Internet connection check karein.");
+   try {
+     await db.auth.signOut();
+   } catch(e) { console.warn("Could not clear previous POS session",e); }
+   showLogin();
+ })();
 })();
 </script>
 
