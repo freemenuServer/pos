@@ -1,536 +1,298 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>FreeMenu POS — Restaurant Operations</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>FreeMenu POS | Restaurant Management</title>
 <script src="https://cdn.tailwindcss.com"></script>
-<script>tailwind.config={theme:{extend:{colors:{emerald:{450:'#10b981'}}}}}</script>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
 <style>
-:root{--bg:#f4fbf6;--sidebar:#ffffff;--panel:#ffffff;--panel2:#f0faf4;--line:#d7e8dd;--muted:#60776a;--green:#10b981;--green2:#059669}
-*{box-sizing:border-box}body{margin:0;background:var(--bg);color:#173b2a;font:14px/1.45 Inter,system-ui,-apple-system,Segoe UI,sans-serif}
-button,input,select,textarea{font:inherit}button{cursor:pointer;transition:background .15s,border-color .15s,transform .15s}button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid #34d399;outline-offset:2px}
-.app{min-height:100vh;display:grid;grid-template-columns:78px minmax(0,1fr)}
-.sidebar{height:100vh;position:sticky;top:0;background:linear-gradient(180deg,#ffffff,#f2fbf5);border-right:1px solid var(--line);display:flex;flex-direction:column;align-items:center;padding:13px 7px;gap:8px}
-.logo{width:47px;height:47px;border-radius:15px;background:linear-gradient(135deg,#34d399,#047857);display:grid;place-items:center;color:#022c22;font-size:22px;box-shadow:0 0 28px #10b98124;margin-bottom:15px}
-.navbtn{width:63px;min-height:62px;border:1px solid transparent;border-radius:12px;background:transparent;color:#60776a;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;font-size:10px;position:relative}
-.navbtn i{font-size:19px}.navbtn:hover{color:#047857;background:#e8f8ee}.navbtn.active{color:#047857;background:linear-gradient(110deg,#d1fae5,#f0fdf4);border-color:#86efac;box-shadow:inset 3px 0 #10b981,0 0 20px #10b98112}
-.navbottom{margin-top:auto;display:grid;gap:7px;text-align:center;color:#60776a;font-size:10px}.online-dot{display:inline-block;width:7px;height:7px;background:#10b981;border-radius:50%;box-shadow:0 0 10px #10b981}
-.main{min-width:0}.topbar{height:78px;display:flex;align-items:center;justify-content:space-between;gap:18px;padding:0 24px;border-bottom:1px solid var(--line);background:#ffffff;position:sticky;top:0;z-index:20}
-.brand{display:flex;align-items:center;gap:12px;min-width:240px}.brandmark{width:42px;height:42px;border-radius:13px;background:#0b3c2d;border:1px solid #116747;display:grid;place-items:center;color:#34d399;font-size:20px}.brand h1{font-size:18px;line-height:1.2;font-weight:800;margin:0;color:#173b2a}.brand p{font-size:11px;color:#60776a;margin:4px 0 0}
-.status{display:inline-flex;align-items:center;gap:7px;border:1px solid #11583e;background:#06291f;color:#a7f3d0;border-radius:999px;padding:7px 11px;font-size:11px;font-weight:750;white-space:nowrap}
-.utilities{display:flex;align-items:center;justify-content:flex-end;gap:8px;flex-wrap:wrap}.utility{display:inline-flex;align-items:center;gap:8px;border:1px solid #d7e8dd;border-radius:10px;background:#ffffff;color:#244b35;padding:9px 12px;font-size:11px;font-weight:700;white-space:nowrap}.utility:hover{border-color:#10b981;background:#effcf4}.utility i{color:#6ee7b7}.switch{display:inline-block;width:31px;height:18px;background:#31434a;border-radius:99px;padding:2px;vertical-align:middle}.switch:after{content:'';display:block;width:14px;height:14px;background:#b9c8ca;border-radius:50%;transition:transform .15s}.switch.on{background:#059669}.switch.on:after{background:white;transform:translateX(13px)}
-.content{padding:18px 20px 30px;max-width:1800px;margin:0 auto}.pagehead{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;margin-bottom:21px}.eyebrow{color:#6ee7b7;font-size:10px;letter-spacing:1.7px;font-weight:800;text-transform:uppercase}.pagehead h2{font-size:25px;letter-spacing:-.6px;margin:5px 0 4px;font-weight:800}.pagehead p{color:#60776a;margin:0;font-size:12px}.head-actions{display:flex;gap:8px;flex-wrap:wrap}.btn{border:1px solid #28404a;border-radius:9px;padding:9px 12px;background:#0c1a22;color:#d4e4e0;font-size:11px;font-weight:750}.btn:hover{border-color:#059669;color:#d1fae5}.btn.primary{background:linear-gradient(135deg,#10b981,#059669);border-color:#10b981;color:#03251b}.btn.primary:hover{filter:brightness(1.08)}
-.hero{display:flex;align-items:center;justify-content:space-between;gap:18px;padding:22px 24px;border:1px solid #b9e5c9;border-radius:16px;background:radial-gradient(ellipse at 85% 0%,#bbf7d066,transparent 44%),linear-gradient(110deg,#ffffff,#f0faf4);margin-bottom:20px;overflow:hidden;position:relative}.hero h3{font-size:23px;line-height:1.2;font-weight:800;margin:7px 0}.hero p{color:#60776a;margin:0}.hero-stats{display:flex;gap:10px}.hero-stat{min-width:118px;border:1px solid #cce8d6;border-radius:11px;padding:11px 14px;background:#ffffffb8}.hero-stat span{display:block;color:#60776a;font-size:10px}.hero-stat strong{display:block;font-size:19px;margin-top:4px;color:#173b2a}.hero-stat em{font-size:10px;color:#6ee7b7;font-style:normal}
-.section{margin-top:23px}.sectionhead{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px}.sectionhead h3{font-size:14px;font-weight:800;margin:0;display:flex;align-items:center;gap:9px}.sectionhead h3 i{color:#34d399}.sectionhead p{color:#718993;font-size:11px;margin:4px 0 0}.grid{display:grid;gap:12px}.opsgrid{grid-template-columns:repeat(4,minmax(0,1fr))}.tile{border:1px solid #d7e8dd;border-radius:13px;background:linear-gradient(150deg,#ffffff,#f8fdf9);padding:16px;min-height:118px;text-align:left;display:flex;flex-direction:column;justify-content:space-between;position:relative;overflow:hidden}.tile:before{content:'';position:absolute;inset:0 auto 0 0;width:2px;background:transparent}.tile:hover{border-color:#10b981;transform:translateY(-2px);background:linear-gradient(150deg,#f0fdf4,#ffffff);box-shadow:0 10px 28px #0003}.tile:hover:before{background:#10b981}.tiletop{display:flex;align-items:flex-start;justify-content:space-between;gap:10px}.tileicon{width:39px;height:39px;display:grid;place-items:center;border-radius:11px;background:#063c2c;color:#6ee7b7;font-size:17px;border:1px solid #125b40}.tileicon.blue{background:#092e42;color:#7dd3fc;border-color:#164b65}.tileicon.amber{background:#352715;color:#fcd34d;border-color:#5c4421}.tileicon.violet{background:#281a42;color:#c4b5fd;border-color:#49326f}.tileicon.rose{background:#3a1727;color:#fda4af;border-color:#6b263e}.arrow{color:#779087;font-size:12px}.tile h4{font-size:13px;font-weight:800;margin:12px 0 3px}.tile p{font-size:11px;color:#60776a;margin:0}.tilefoot{display:flex;justify-content:space-between;align-items:center;margin-top:12px}.tinybadge{font-size:10px;border:1px solid #21443a;background:#0b2c22;color:#a7f3d0;border-radius:999px;padding:4px 7px}.tinybadge.neutral{border-color:#d7e8dd;background:#f4fbf6;color:#60776a}
-.integrations{grid-template-columns:repeat(3,minmax(0,1fr))}.integration{border:1px solid #d7e8dd;border-radius:13px;background:#ffffff;padding:15px}.integration-head{display:flex;align-items:center;gap:10px}.brandbadge{width:39px;height:39px;border-radius:11px;display:grid;place-items:center;background:#122c26;color:#6ee7b7;font-size:16px}.integration h4{font-size:13px;margin:0;font-weight:800}.integration p{color:#60776a;font-size:10px;margin:3px 0 0}.integration .sync{margin-left:auto}.integration-foot{display:flex;align-items:center;justify-content:space-between;border-top:1px solid #d7e8dd;margin-top:14px;padding-top:12px;font-size:10px;color:#60776a}.metrics{display:flex;gap:10px}.metric{flex:1}.metric strong{display:block;color:#173b2a;font-size:16px;margin-top:4px}.metric span{font-size:10px;color:#60776a}
-.livefilters{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:15px}.filter{border:1px solid #d7e8dd;background:#ffffff;color:#60776a;border-radius:999px;padding:8px 13px;font-size:11px;font-weight:750}.filter.active{background:#064e3b;border-color:#059669;color:#d1fae5}
-.ticketgrid{grid-template-columns:repeat(3,minmax(0,1fr))}.ticket{border:1px solid #d7e8dd;background:#ffffff;border-radius:14px;padding:15px}.ticket.ready{border-color:#059669}.tickethead{display:flex;justify-content:space-between;gap:8px}.tickethead strong{font-size:14px}.timer{font-size:10px;color:#fcd34d;background:#302814;border:1px solid #5c4921;border-radius:999px;padding:4px 7px}.ticketitems{margin:13px 0;padding:11px 0;border-top:1px solid #d7e8dd;border-bottom:1px solid #d7e8dd;display:grid;gap:7px}.ticketitem{display:flex;justify-content:space-between;gap:8px;font-size:12px}.ticketnote{font-size:11px;color:#60776a;background:#f1f8f3;padding:9px;border-radius:8px}.ticketfoot{display:flex;justify-content:space-between;align-items:center;margin:12px 0;font-size:12px}.ticketactions{display:flex;gap:6px;flex-wrap:wrap}.ticketactions button{flex:1;min-width:90px}
-.reportgrid{grid-template-columns:repeat(3,minmax(0,1fr))}.reportcard{border:1px solid #d7e8dd;border-radius:14px;background:linear-gradient(140deg,#ffffff,#f8fdf9);padding:18px;text-align:left}.reportcard:hover{border-color:#10b981;background:#f0fdf4}.reportcard .tileicon{margin-bottom:15px}.reportcard h4{font-size:14px;font-weight:800;margin:0 0 5px}.reportcard p{font-size:11px;color:#60776a;margin:0}.reportcard .open{display:flex;justify-content:space-between;align-items:center;margin-top:18px;color:#6ee7b7;font-size:11px;font-weight:800}
-.view{display:none}.view.active{display:block;animation:fade .18s ease}@keyframes fade{from{opacity:.65;transform:translateY(3px)}to{opacity:1;transform:none}}
-.modalback{display:none;position:fixed;inset:0;background:#010608c9;z-index:80;align-items:center;justify-content:center;padding:18px}.modalback.show{display:flex}.modal{width:min(620px,100%);max-height:88vh;overflow:auto;background:#ffffff;color:#173b2a;border:1px solid #b9d9c4;border-radius:16px;box-shadow:0 25px 90px #000a}.modalhead{display:flex;justify-content:space-between;align-items:center;padding:17px 20px;border-bottom:1px solid #d7e8dd}.modalhead h3{font-size:16px;font-weight:800;margin:0}.modalbody{padding:20px}.close{background:transparent;border:0;color:#60776a;font-size:23px}.modalgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.formfield{display:grid;gap:5px;font-size:11px;color:#466653}.formfield input,.formfield select,.formfield textarea{width:100%;background:#f8fdf9;border:1px solid #c8dfd0;border-radius:8px;padding:10px;color:#173b2a}.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);padding:11px 16px;border-radius:10px;border:1px solid #147c56;background:#063b2b;color:#d1fae5;z-index:100;display:none;box-shadow:0 10px 40px #0008}.empty{grid-column:1/-1;border:1px dashed #2b4149;padding:38px;border-radius:12px;text-align:center;color:#8ba2aa}
-@media(max-width:1250px){.opsgrid{grid-template-columns:repeat(3,minmax(0,1fr))}.ticketgrid,.reportgrid{grid-template-columns:repeat(2,minmax(0,1fr))}.utilities{gap:5px}.utility{padding:8px}.hero-stats .hero-stat:last-child{display:none}}
-@media(max-width:850px){.app{grid-template-columns:66px minmax(0,1fr)}.topbar{height:auto;min-height:76px;align-items:flex-start;padding:13px;flex-direction:column}.brand{min-width:0}.utilities{justify-content:flex-start}.content{padding:16px}.opsgrid{grid-template-columns:repeat(2,minmax(0,1fr))}.integrations{grid-template-columns:1fr}.hero{align-items:flex-start;flex-direction:column}.hero-stats{width:100%}.hero-stat{flex:1}.ticketgrid,.reportgrid{grid-template-columns:1fr 1fr}}
-@media(max-width:540px){.pagehead{align-items:flex-start;flex-direction:column}.pagehead h2{font-size:22px}.opsgrid,.ticketgrid,.reportgrid{grid-template-columns:1fr}.hero h3{font-size:20px}.hero-stats{gap:6px}.hero-stat{min-width:0;padding:9px}.hero-stat strong{font-size:16px}.utilities .utility{font-size:10px}.navbtn{width:52px}.sidebar{padding-inline:5px}.modalgrid{grid-template-columns:1fr}}
-
-/* Emerald + white theme overrides */
-body{background:#f4fbf6;color:#173b2a}
-.pagehead h2,.sectionhead h3,.tile h4,.tickethead strong,.ticketitem,.ticketfoot strong,.integration h4{color:#173b2a}
-.eyebrow{color:#059669}
-.btn{background:#fff;color:#244b35;border-color:#d7e8dd}
-.btn:hover{background:#effcf4;border-color:#10b981;color:#047857}
-.btn.primary{background:#059669;color:#fff;border-color:#059669}
-.brandmark{background:#dcfce7;border-color:#a7f3d0;color:#047857}
-.status{background:#ecfdf5;border-color:#a7f3d0;color:#047857}
-.tileicon{background:#dcfce7;color:#047857;border-color:#a7f3d0}
-.tileicon.blue{background:#e0f2fe;color:#0369a1;border-color:#bae6fd}
-.tileicon.amber{background:#fef3c7;color:#92400e;border-color:#fde68a}
-.tileicon.violet{background:#ede9fe;color:#6d28d9;border-color:#ddd6fe}
-.tileicon.rose{background:#ffe4e6;color:#be123c;border-color:#fecdd3}
-.brandbadge{background:#dcfce7;color:#047857}
-.tickethead div[style],.ticketfoot span[style]{color:#60776a!important}
-.ticketnote{background:#f0faf4;color:#466653}
-.metric span,.integration p,.sectionhead p{color:#60776a}
-.modalbody{color:#173b2a}
-.modalbody .border-slate-700{border-color:#d7e8dd}
-.modalbody .bg-emerald-950\/30{background:#ecfdf5}
-.modalbody .text-emerald-300{color:#047857}
-.modalbody .text-slate-400,.modalbody .text-slate-500{color:#60776a}
-.modalbody .text-slate-300{color:#466653}
-@media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;transition:none!important;animation:none!important}}
-
-/* FreeMenu POS — white & emerald billing-counter skin */
-:root{
- --bg:#f5faf6;--sidebar:#ffffff;--panel:#ffffff;--panel2:#f7fcf8;
- --line:#dce8df;--muted:#617469;--green:#059669;--green2:#047857;
- --ink:#172b20;--mint:#ecfdf5;--soft:#f0f7f2;--danger:#dc2626;
-}
-html,body{background:var(--bg)!important;color:var(--ink)!important}
-body{font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif}
-.sidebar{background:#fff!important;border-right:1px solid var(--line)!important}
-.topbar{background:#fff!important;border-bottom:1px solid var(--line)!important;color:var(--ink)!important}
-.brand h1,.pagehead h2,.sectionhead h3,.tile h4,.tickethead strong,.reportcard h4{color:var(--ink)!important}
-.brand p,.pagehead p,.sectionhead p,.tile p,.reportcard p,.metric span{color:var(--muted)!important}
-.navbtn{color:#52675a!important}
-.navbtn:hover,.navbtn.active{background:#ecfdf5!important;color:#047857!important;border-color:#a7f3d0!important}
-.utility,.btn,.filter{background:#fff!important;color:#244b35!important;border-color:#d6e5da!important}
-.utility:hover,.btn:hover,.filter:hover{background:#ecfdf5!important;border-color:#34d399!important}
-.btn.primary,.primary,.save-btn{background:#059669!important;color:#fff!important;border-color:#059669!important}
-.status,.brandbadge,.tinybadge{background:#ecfdf5!important;color:#047857!important;border-color:#a7f3d0!important}
-.hero{background:linear-gradient(110deg,#ffffff,#effcf4)!important;border-color:#cde7d5!important}
-.hero p{color:#52675a!important}
-.hero-stat{background:#fff!important;border-color:#d6e5da!important}
-.hero-stat span{color:#617469!important}
-.tile,.integration,.reportcard,.ticket{background:#fff!important;border-color:#dce8df!important;color:var(--ink)!important;box-shadow:0 1px 3px #143c2510}
-.tile:hover,.reportcard:hover{background:#f0fdf4!important;border-color:#34d399!important}
-.tileicon{background:#dcfce7!important;color:#047857!important;border-color:#bbf7d0!important}
-.tileicon.blue{background:#e0f2fe!important;color:#0369a1!important}
-.tileicon.amber{background:#fef3c7!important;color:#92400e!important}
-.tileicon.violet{background:#ede9fe!important;color:#6d28d9!important}
-.tileicon.rose{background:#ffe4e6!important;color:#be123c!important}
-.integration-foot,.ticketitems{border-color:#dce8df!important;color:#617469!important}
-.ticketnote{background:#f0fdf4!important;color:#365744!important}
-.modal{background:#fff!important;color:var(--ink)!important;border-color:#cfe2d5!important}
-.modalhead{border-color:#dce8df!important}
-.formfield{color:#52675a!important}
-.formfield input,.formfield select,.formfield textarea{background:#fff!important;color:var(--ink)!important;border-color:#cbded0!important}
-.page{color:var(--ink)!important}
-#billing-screen{background:#f5f7f5!important;color:#172b20!important}
-.billing-shell{display:grid;grid-template-columns:250px minmax(0,1fr);gap:0;min-height:calc(100vh - 80px);border:1px solid #dce8df;border-radius:12px;overflow:hidden;background:#fff}
-.billing-orders{background:#f7faf8;border-right:1px solid #dce8df;padding:12px}
-.billing-main{min-width:0;background:#fff}
-.billing-heading{height:58px;display:flex;align-items:center;justify-content:space-between;padding:0 20px;border-bottom:1px solid #e2e8e4}
-.billing-heading h2{font-size:21px;font-weight:650;margin:0;color:#172b20}
-.billing-toolbar{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
-.pos-pill{border:1px solid #d7e4da;border-radius:9px;background:#fff;color:#315341;padding:8px 11px;font-size:12px}
-.pos-pill.active{background:#059669;color:white;border-color:#059669}
-.billing-row{display:flex;align-items:center;gap:12px;flex-wrap:wrap;padding:12px 18px;border-bottom:1px solid #e5ebe7}
-.billing-row label{font-size:13px;font-weight:600;color:#355744}
-.billing-input{height:38px;border:1px solid #cfded3;border-radius:8px;padding:0 11px;background:#fff;color:#172b20;min-width:120px;outline:none}
-.billing-input:focus{border-color:#10b981;box-shadow:0 0 0 3px #10b98120}
-.billing-search{width:min(380px,100%)}
-.billing-table{width:100%;border-collapse:collapse;font-size:13px}
-.billing-table th{background:#059669;color:#fff;text-align:left;padding:12px 10px;font-weight:650}
-.billing-table td{padding:10px;border-bottom:1px solid #e7eee9;color:#243d2e}
-.billing-table tbody tr:hover{background:#f0fdf4}
-.billing-totalrow{display:flex;justify-content:flex-end;gap:0;border-top:1px solid #dce8df;background:#f8fbf9}
-.billing-totalrow>div{padding:12px 15px;border-left:1px solid #dce8df;font-size:13px}
-.billing-totalrow strong{color:#173b2a}
-.billing-bottom{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;padding:12px 15px;background:#f0f4f1;border-top:1px solid #dce8df}
-.billing-actions{display:flex;gap:8px;flex-wrap:wrap}
-.billing-action{border:1px solid #cbded0;background:#fff;color:#244b35;border-radius:8px;padding:10px 15px;font-size:13px;font-weight:600}
-.billing-action.primary{background:#059669;color:#fff;border-color:#059669}
-.order-mini{border:1px solid #d7e4da;background:#fff;border-radius:8px;padding:10px;margin:7px 0;cursor:pointer}
-.order-mini.active{border-color:#10b981;background:#ecfdf5}
-.order-mini strong{display:block;font-size:12px;color:#214c34}
-.order-mini span{font-size:11px;color:#617469}
-.billing-category{display:flex;gap:7px;flex-wrap:wrap}
-.billing-products{display:grid;grid-template-columns:repeat(auto-fill,minmax(145px,1fr));gap:9px;padding:12px 18px}
-.product-card{border:1px solid #dce8df;background:#fff;border-radius:10px;padding:12px;cursor:pointer;text-align:left;transition:.15s}
-.product-card:hover{border-color:#10b981;background:#f0fdf4;transform:translateY(-1px)}
-.product-card strong{display:block;font-size:13px;color:#1b3d29}
-.product-card span{display:block;font-size:12px;color:#047857;margin-top:7px}
-.product-dot{display:inline-block;width:7px;height:7px;border-radius:50%;background:#16a34a;margin-right:5px}
-.empty-cart{padding:38px 15px;text-align:center;color:#789083}
-@media(max-width:900px){.billing-shell{grid-template-columns:1fr}.billing-orders{border-right:0;border-bottom:1px solid #dce8df}.billing-orders .order-list{display:flex;gap:7px;overflow:auto}.order-mini{min-width:135px}}
-@media print{body *{visibility:hidden!important}#receipt-print,#receipt-print *{visibility:visible!important}#receipt-print{position:absolute;left:0;top:0;width:80mm;background:#fff;color:#000}}
-
-
-/* Screenshot-matched Settings page: white panels, grey icon discs, emerald accents */
-.settings-group{background:#fff;border:1px solid #d9e2dc;border-radius:10px;margin:0 0 22px;overflow:hidden}
-.settings-group-head{padding:18px 20px 16px;border-bottom:1px solid #e0e7e2}
-.settings-group-head h3{font-size:19px;font-weight:500;color:#172b20;margin:0}
-.settings-group-head p{font-size:12px;color:#708276;margin:5px 0 0}
-.settings-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:24px 30px;padding:28px}
-.settings-card{position:relative;display:flex;align-items:center;gap:17px;text-align:left;min-height:108px;padding:18px 20px;border:1px solid #e0e4e1;border-radius:12px;background:#fff;color:#172b20;box-shadow:0 1px 3px #102d1a0a;cursor:pointer;transition:border-color .15s,background .15s,transform .15s}
-.settings-card:hover{border-color:#86d8aa;background:#f8fdf9;transform:translateY(-1px)}
-.settings-icon{flex:0 0 60px;width:60px;height:60px;border-radius:50%;display:grid;place-items:center;background:#f0f2f1;color:#454b47;font-size:24px}
-.settings-copy{display:flex;flex-direction:column;gap:6px;min-width:0;padding-right:16px}
-.settings-copy strong{font-size:16px;font-weight:500;line-height:1.35;color:#172b20}
-.settings-copy small{font-size:14px;line-height:1.55;color:#273b2e;font-weight:400}
-.settings-arrow{position:absolute;right:20px;top:24px;color:#3b82f6;font-size:21px;font-weight:400}
-.settings-detail{background:#fff;border:1px solid #b9e5c9;border-radius:10px;margin:0 0 20px;padding:20px}
-.settings-detail h3{margin:0 0 8px;color:#14532d}
-.settings-detail p{color:#52675a;font-size:13px}
-.settings-detail .settings-form{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;max-width:850px}
-.settings-detail label{display:grid;gap:6px;color:#466653;font-size:12px}
-.settings-detail input,.settings-detail select{border:1px solid #cbded0;border-radius:8px;padding:10px;background:#fff;color:#173b2a}
-.settings-detail .save-setting{margin-top:16px;background:#059669;color:white;border:0;border-radius:8px;padding:10px 16px;font-weight:600;cursor:pointer}
-@media(max-width:1100px){.settings-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;padding:18px}}
-@media(max-width:650px){.settings-grid{grid-template-columns:1fr;padding:12px;gap:12px}.settings-card{min-height:90px;padding:13px}.settings-icon{width:48px;height:48px;flex-basis:48px;font-size:20px}.settings-copy strong{font-size:14px}.settings-copy small{font-size:12px}.settings-detail .settings-form{grid-template-columns:1fr}}
-
+:root{--green:#059669;--green2:#047857;--mint:#ecfdf5;--ink:#173327;--line:#dfe8e2;--muted:#718078}
+*{box-sizing:border-box}body{margin:0;background:#f5f8f6;color:var(--ink);font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;font-size:14px}
+button,input,select,textarea{font:inherit}button{cursor:pointer}button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:2px solid #10b981;outline-offset:2px}
+.app{min-height:100vh;display:grid;grid-template-columns:82px minmax(0,1fr)}.sidebar{background:#fff;border-right:1px solid var(--line);display:flex;flex-direction:column;min-height:100vh;position:sticky;top:0;height:100vh;z-index:20}.brand{height:72px;display:grid;place-items:center;border-bottom:1px solid var(--line);color:#fff;background:linear-gradient(145deg,#047857,#10b981)}.brand i{font-size:24px}.brand small{font-size:9px;font-weight:800;letter-spacing:.5px}.nav{display:flex;flex-direction:column;gap:4px;padding:10px 7px}.navbtn{height:61px;border:0;background:transparent;color:#68766e;border-radius:10px;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:6px;font-size:10px;font-weight:600}.navbtn i{font-size:17px}.navbtn:hover{background:#f0fbf5;color:var(--green2)}.navbtn.active{background:#e9fbf1;color:var(--green2);box-shadow:inset 3px 0 var(--green)}.sidebar-foot{margin-top:auto;padding:10px 5px;border-top:1px solid var(--line);text-align:center;color:#64756b;font-size:9px}.dot{display:inline-block;width:7px;height:7px;border-radius:50%;background:#10b981;margin-right:4px}
+main{min-width:0}.topbar{height:72px;background:#fff;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;padding:0 22px;gap:16px;position:sticky;top:0;z-index:15}.topbrand{display:flex;align-items:center;gap:10px}.topbrand .mark{height:40px;width:40px;border-radius:12px;background:var(--mint);color:var(--green2);display:grid;place-items:center;font-size:19px}.topbrand h1{font-size:19px;line-height:1.1;margin:0;font-weight:800;letter-spacing:-.4px}.topbrand p{margin:4px 0 0;color:var(--muted);font-size:11px}.top-actions{display:flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:flex-end}.pill{display:inline-flex;align-items:center;gap:7px;border:1px solid var(--line);border-radius:999px;padding:8px 11px;background:#fff;color:#3d5748;font-size:11px;font-weight:650}.pill.status{background:#edfcf4;border-color:#c3efd4;color:#047857}.pill .dot{margin:0}.iconbtn{width:35px;height:35px;border:1px solid var(--line);border-radius:10px;background:#fff;color:#52665a}.help{border:1px solid #b9e7cb;background:#effcf4;color:#047857;border-radius:10px;padding:8px 12px;font-size:11px;font-weight:750}
+.content{max-width:1700px;margin:0 auto;padding:20px}.outlet-strip{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;background:#fff;border:1px solid var(--line);border-radius:12px;padding:11px 14px;margin-bottom:18px}.outlet-name{display:flex;align-items:center;gap:9px;flex-wrap:wrap}.outlet-name strong{font-size:12px}.muted{color:var(--muted)}.tiny{font-size:11px}.view{display:none}.view.active{display:block}.pagehead{display:flex;align-items:flex-end;justify-content:space-between;gap:15px;margin:2px 0 18px}.eyebrow{font-size:10px;letter-spacing:1.4px;font-weight:800;color:var(--green);margin-bottom:6px}.pagehead h2{font-size:25px;line-height:1.15;margin:0;font-weight:800;letter-spacing:-.7px}.pagehead p{margin:6px 0 0;color:var(--muted);font-size:12px}.btn{border:1px solid var(--line);background:#fff;border-radius:9px;padding:9px 12px;color:#365343;font-size:12px;font-weight:700;display:inline-flex;align-items:center;gap:7px}.btn:hover{background:#f2fbf6;border-color:#b7e7ca}.btn.primary{background:var(--green);border-color:var(--green);color:#fff}.btn.primary:hover{background:var(--green2)}.btn.danger{color:#b91c1c;border-color:#fecaca;background:#fff7f7}.section{background:#fff;border:1px solid var(--line);border-radius:13px;margin-bottom:20px;overflow:hidden}.section-head{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:16px 18px;border-bottom:1px solid var(--line)}.section-head h3{margin:0;font-size:16px;font-weight:750}.section-head p{margin:4px 0 0;font-size:11px;color:var(--muted)}.card-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:13px;padding:16px}.action-card{display:flex;align-items:center;gap:13px;text-align:left;min-height:86px;padding:14px;border:1px solid var(--line);border-radius:12px;background:#fff;transition:.15s;color:var(--ink)}.action-card:hover{border-color:#8fdab0;background:#f8fefa;transform:translateY(-1px);box-shadow:0 5px 15px #0a6b3b0b}.action-icon{flex:0 0 45px;height:45px;border-radius:13px;display:grid;place-items:center;background:#eefaf3;color:var(--green2);font-size:18px}.action-copy{display:flex;flex-direction:column;gap:5px;min-width:0}.action-copy strong{font-size:12px;font-weight:750}.action-copy small{font-size:10px;color:var(--muted);line-height:1.45}.arrow{margin-left:auto;color:#10a66c}.stat-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-bottom:16px}.stat{background:#fff;border:1px solid var(--line);border-radius:12px;padding:15px}.stat .label{color:var(--muted);font-size:11px}.stat .value{font-size:24px;font-weight:800;margin-top:7px}.stat .foot{font-size:10px;color:#059669;margin-top:5px}.billing-layout{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(360px,.9fr);gap:16px}.panel{background:#fff;border:1px solid var(--line);border-radius:13px;overflow:hidden;min-width:0}.panel-head{padding:15px 16px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center;gap:12px}.panel-head h3{font-size:15px;margin:0;font-weight:800}.panel-body{padding:15px}.mode-row,.chips{display:flex;gap:7px;flex-wrap:wrap}.chip{border:1px solid var(--line);background:#fff;color:#64756a;padding:7px 11px;border-radius:999px;font-size:11px;font-weight:700}.chip.active,.chip[aria-pressed="true"]{background:#e9fbf1;border-color:#7ed6a4;color:#047857}.field{width:100%;border:1px solid #d6e2da;border-radius:9px;background:#fff;padding:10px 11px;color:#183a29;min-width:0}.field::placeholder{color:#9aa89f}.field-label{display:grid;gap:6px;font-size:11px;font-weight:700;color:#536b5b}.customer-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:13px 0}.category-row{display:flex;gap:7px;overflow:auto;padding:0 0 12px}.menu-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}.menu-item{border:1px solid var(--line);border-radius:11px;padding:10px;text-align:left;background:#fff;min-width:0;position:relative}.menu-item:hover{border-color:#73c999;background:#f7fdf9}.food-thumb{height:72px;border-radius:8px;background:linear-gradient(135deg,#e6f8ed,#f6fcf8);display:grid;place-items:center;color:#15945f;font-size:26px;margin-bottom:9px}.food-tag{display:inline-flex;font-size:9px;border:1px solid #9dd9b5;color:#047857;border-radius:4px;padding:2px 4px;margin-bottom:5px}.food-tag.nonveg{color:#c2410c;border-color:#fdba74}.menu-item strong{display:block;font-size:11px;line-height:1.35}.menu-item .price{font-size:11px;font-weight:800;margin-top:5px}.add-plus{position:absolute;right:9px;bottom:9px;border:0;background:var(--green);color:#fff;border-radius:7px;width:25px;height:25px}.cart-list{display:flex;flex-direction:column;gap:9px;max-height:360px;overflow:auto}.cart-item{border:1px solid #e6eee8;border-radius:10px;padding:10px;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px}.cart-item strong{font-size:12px}.cart-item .subline{font-size:10px;color:var(--muted);margin-top:3px}.qty{display:flex;align-items:center;gap:7px}.qty button{width:25px;height:25px;border:1px solid var(--line);border-radius:7px;background:#fff;color:#047857}.qty span{min-width:12px;text-align:center;font-weight:800}.cart-note{grid-column:1/-1}.totals{border-top:1px solid var(--line);margin-top:13px;padding-top:12px;display:flex;flex-direction:column;gap:8px}.total-row{display:flex;justify-content:space-between;gap:12px;font-size:12px}.total-row.grand{font-size:18px;font-weight:850;color:#047857;border-top:1px dashed #c9ddd0;padding-top:10px;margin-top:3px}.payment-row{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:13px}.pay-btn{border:1px solid var(--line);border-radius:9px;background:#fff;padding:10px 7px;font-size:11px;font-weight:750;color:#4c6254}.pay-btn.active{background:#e9fbf1;border-color:#54c987;color:#047857}.cart-actions{display:flex;gap:8px;margin-top:12px}.cart-actions button{flex:1;justify-content:center}.empty{padding:28px 12px;text-align:center;color:#809087;font-size:12px}.ticket-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:13px}.ticket{background:#fff;border:1px solid var(--line);border-radius:12px;overflow:hidden}.ticket-head{background:#effaf3;padding:12px;display:flex;justify-content:space-between;gap:8px}.ticket-head strong{font-size:12px}.ticket-body{padding:12px}.ticket-items{padding:10px 0;display:flex;flex-direction:column;gap:7px;font-size:11px}.ticket-foot{padding:10px 12px;border-top:1px solid var(--line);display:flex;gap:7px;flex-wrap:wrap}.ticket-foot .btn{flex:1;justify-content:center}.report-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:13px}.report-card{border:1px solid var(--line);background:#fff;border-radius:12px;padding:15px;display:flex;gap:12px;align-items:flex-start;text-align:left}.report-card:hover{border-color:#8bd8aa;background:#f9fefa}.report-card .action-icon{flex-basis:42px;height:42px}.report-card strong{font-size:12px}.report-card p{margin:5px 0 0;color:var(--muted);font-size:10px;line-height:1.5}.settings-group{background:#fff;border:1px solid var(--line);border-radius:12px;margin-bottom:20px;overflow:hidden}.settings-group-head{padding:17px 19px;border-bottom:1px solid var(--line)}.settings-group-head h3{font-size:17px;font-weight:750;margin:0}.settings-group-head p{font-size:11px;color:var(--muted);margin:4px 0 0}.settings-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:17px;padding:20px}.settings-card{position:relative;display:flex;align-items:center;gap:13px;text-align:left;min-height:94px;padding:14px;border:1px solid var(--line);border-radius:11px;background:#fff;color:var(--ink)}.settings-card:hover{border-color:#8fdab0;background:#f8fefa}.settings-icon{flex:0 0 48px;width:48px;height:48px;border-radius:50%;display:grid;place-items:center;background:#f0f3f1;color:#47554c;font-size:19px}.settings-copy{display:flex;flex-direction:column;gap:5px;min-width:0;padding-right:12px}.settings-copy strong{font-size:12px;font-weight:750;line-height:1.35}.settings-copy small{font-size:10px;line-height:1.5;color:#5d6f63}.settings-arrow{position:absolute;right:13px;top:15px;color:#10a66c}.settings-detail{background:#fff;border:1px solid #b9e7cb;border-radius:12px;margin-bottom:20px;padding:18px}.settings-detail h3{margin:0 0 6px;font-size:16px}.settings-detail p{font-size:11px;color:var(--muted);margin:0 0 14px}.settings-form{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;max-width:900px}.settings-form label{display:grid;gap:6px;font-size:11px;color:#536b5b;font-weight:700}.settings-form input,.settings-form select{border:1px solid #d6e2da;border-radius:8px;padding:9px;background:white;color:#173327;width:100%}.toggle{appearance:none;width:36px;height:20px;border-radius:20px;background:#cbd5ce;position:relative;cursor:pointer;vertical-align:middle}.toggle:checked{background:#10b981}.toggle:before{content:"";position:absolute;width:14px;height:14px;left:3px;top:3px;background:#fff;border-radius:50%;transition:.15s}.toggle:checked:before{left:19px}.table-wrap{overflow:auto}table{width:100%;border-collapse:collapse;background:#fff}th,td{text-align:left;padding:11px 12px;border-bottom:1px solid #e8eee9;font-size:11px;white-space:nowrap}th{background:#f3faf5;color:#486252;font-weight:800}.badge{display:inline-flex;border-radius:999px;padding:4px 7px;font-size:9px;font-weight:800;background:#e9fbf1;color:#047857}.badge.orange{background:#fff7ed;color:#c2410c}.badge.red{background:#fef2f2;color:#b91c1c}
+.modal-backdrop{position:fixed;inset:0;background:#12332655;display:none;align-items:center;justify-content:center;padding:18px;z-index:100}.modal-backdrop.open{display:flex}.modal{background:#fff;width:min(560px,100%);max-height:88vh;overflow:auto;border-radius:16px;box-shadow:0 25px 90px #103d2a35}.modal-head{display:flex;justify-content:space-between;align-items:center;padding:17px 19px;border-bottom:1px solid var(--line)}.modal-head h3{margin:0;font-size:16px}.modal-body{padding:18px}.modal-foot{padding:14px 18px;border-top:1px solid var(--line);display:flex;justify-content:flex-end;gap:8px}.toast{position:fixed;right:18px;bottom:18px;z-index:120;background:#064e3b;color:white;padding:12px 16px;border-radius:10px;box-shadow:0 8px 30px #064e3b33;display:none;font-size:12px}.toast.show{display:block}.mobile-menu{display:none}
+@media(max-width:1200px){.card-grid,.settings-grid,.report-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.ticket-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.billing-layout{grid-template-columns:1fr}.stat-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:760px){.app{grid-template-columns:1fr}.sidebar{position:fixed;left:0;top:0;bottom:0;height:100dvh;width:72px;transform:translateX(-100%);transition:transform .2s;box-shadow:10px 0 30px #0f392018}.sidebar.open{transform:translateX(0)}.mobile-menu{display:inline-flex}.topbar{height:auto;min-height:66px;padding:10px 12px;align-items:flex-start}.topbrand h1{font-size:16px}.top-actions .pill:not(.status),.top-actions .help{display:none}.content{padding:12px}.pagehead{align-items:flex-start;flex-direction:column}.card-grid,.settings-grid,.report-grid,.ticket-grid{grid-template-columns:1fr;padding:12px;gap:10px}.menu-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.customer-grid{grid-template-columns:1fr}.settings-form{grid-template-columns:1fr}.outlet-strip{padding:10px}.stat-grid{gap:8px}.stat{padding:11px}.stat .value{font-size:20px}.billing-layout{grid-template-columns:minmax(0,1fr)}.section-head{padding:13px}.pagehead h2{font-size:22px}}
+@media print{body{background:#fff}.sidebar,.topbar,.outlet-strip,.no-print,.modal-backdrop,.toast{display:none!important}.app{display:block}.content{padding:0;max-width:none}.view{display:none!important}#view-billing.active{display:block!important}.billing-layout{display:block}.billing-layout>.panel:first-child{display:none}.billing-layout>.panel:last-child{border:0}.panel-head{display:none}.panel-body{padding:0}.cart-list{max-height:none}.cart-actions,.payment-row{display:none!important}.receipt-print{display:block!important}}
 </style>
 </head>
 <body>
 <div class="app">
- <aside class="sidebar">
-  <div class="logo"><i class="fa-solid fa-leaf"></i></div>
-  <button class="navbtn active" data-view="billing" onclick="navigate('billing')"><i class="fa-solid fa-cash-register"></i><span>Billing</span></button>
-  <button class="navbtn" data-view="operations" onclick="navigate('operations')"><i class="fa-solid fa-table-cells-large"></i><span>Operations</span></button>
-  <button class="navbtn" data-view="reports" onclick="navigate('reports')"><i class="fa-solid fa-chart-column"></i><span>Reports</span></button>
-  <button class="navbtn" data-view="live" onclick="navigate('live')"><i class="fa-solid fa-tower-broadcast"></i><span>Live View</span></button>
-  <button class="navbtn" data-view="settings" onclick="navigate('settings')"><i class="fa-solid fa-gear"></i><span>Settings</span></button>
-  <div class="navbottom"><div><span class="online-dot"></span> Cloud Sync</div><div>v1.0.0</div><button class="btn" onclick="logoutDemo()"><i class="fa-solid fa-arrow-right-from-bracket"></i></button></div>
- </aside>
- <main class="main">
+<aside class="sidebar" id="sidebar">
+ <div class="brand"><div style="text-align:center"><i class="fa-solid fa-cloud-bolt"></i><small style="display:block">FREEMENU POS</small></div></div>
+ <nav class="nav" aria-label="Main navigation">
+  <button class="navbtn" data-view="billing"><i class="fa-solid fa-cash-register"></i><span>Billing</span></button>
+  <button class="navbtn active" data-view="operations"><i class="fa-solid fa-sliders"></i><span>Operations</span></button>
+  <button class="navbtn" data-view="reports"><i class="fa-solid fa-chart-column"></i><span>Reports</span></button>
+  <button class="navbtn" data-view="live"><i class="fa-solid fa-tower-broadcast"></i><span>Live View</span></button>
+  <button class="navbtn" data-view="settings"><i class="fa-solid fa-gear"></i><span>Settings</span></button>
+  <button class="navbtn" data-action="check-updates"><i class="fa-solid fa-arrows-rotate"></i><span>Check Updates</span></button>
+ </nav>
+ <div class="sidebar-foot"><div><span class="dot"></span>Online</div><div style="margin-top:6px">Version 1.0.0</div><button data-action="logout" style="margin-top:10px;border:0;background:none;color:#63776a;font-size:10px"><i class="fa-solid fa-arrow-right-from-bracket"></i> Logout</button></div>
+</aside>
+<main>
+<header class="topbar">
+ <div class="topbrand"><button class="iconbtn mobile-menu" data-action="menu" aria-label="Open navigation"><i class="fa-solid fa-bars"></i></button><div class="mark"><i class="fa-solid fa-cloud-bolt"></i></div><div><h1>FreeMenu POS</h1><p>Restaurant Management System</p></div></div>
+ <div class="top-actions">
+  <span class="pill status"><span class="dot"></span><span id="station-status">Master Billing Station · Online</span></span>
+  <button class="pill" data-modal="item-onoff"><i class="fa-solid fa-toggle-on"></i> Item On/Off</button>
+  <button class="pill" data-action="store-status"><i class="fa-solid fa-store"></i> <span id="store-label">Store Open</span></button>
+  <button class="pill" data-view="live"><i class="fa-solid fa-tower-broadcast"></i> Live View</button>
+  <button class="pill" data-view="live"><i class="fa-solid fa-bell"></i> KOT Alerts <span class="badge" id="kot-count">2</span></button>
+  <button class="help" data-modal="help"><i class="fa-regular fa-circle-question"></i> Need Help</button>
+ </div>
+</header>
+<div class="content">
+ <div class="outlet-strip"><div class="outlet-name"><i class="fa-solid fa-store" style="color:#059669"></i><strong>Spice Garden</strong><span class="muted">/</span><span class="tiny muted">Main Outlet · Master Billing Station</span><span class="badge"><span class="dot"></span> Online</span></div><div class="tiny muted"><i class="fa-regular fa-calendar"></i> <span id="today"></span> &nbsp; <i class="fa-regular fa-clock"></i> <span id="clock"></span></div></div>
 
+ <section id="view-operations" class="view active">
+  <div class="pagehead"><div><div class="eyebrow">RESTAURANT CONTROL CENTER</div><h2>Operations Dashboard</h2><p>Manage orders, billing, inventory, payments and outlet systems from one place.</p></div><button class="btn primary" data-view="billing"><i class="fa-solid fa-plus"></i> New Bill</button></div>
+  <div class="stat-grid">
+   <div class="stat"><div class="label">Today's Sales</div><div class="value" id="dash-sales">₹24,560</div><div class="foot"><i class="fa-solid fa-arrow-trend-up"></i> Live demo summary</div></div>
+   <div class="stat"><div class="label">Orders Today</div><div class="value" id="dash-orders">48</div><div class="foot">Dine-in · Pickup · Delivery</div></div>
+   <div class="stat"><div class="label">KOT Queue</div><div class="value" id="dash-kots">2</div><div class="foot">Kitchen tickets awaiting action</div></div>
+   <div class="stat"><div class="label">Online Sync</div><div class="value" style="color:#059669;font-size:19px">Connected</div><div class="foot">Demo status · no aggregator API linked</div></div>
+  </div>
+  <section class="section"><div class="section-head"><div><h3>Orders & Billing</h3><p>Fast access to everyday order operations.</p></div></div><div class="card-grid" id="ops-orders"></div></section>
+  <section class="section"><div class="section-head"><div><h3>Payments & Finance</h3><p>Track collections and manage outlet cash.</p></div></div><div class="card-grid" id="ops-finance"></div></section>
+  <section class="section"><div class="section-head"><div><h3>Menu & Inventory</h3><p>Keep the menu, stock and taxes up to date.</p></div></div><div class="card-grid" id="ops-menu"></div></section>
+  <section class="section"><div class="section-head"><div><h3>System Settings</h3><p>Configure printers, stations and connected services.</p></div></div><div class="card-grid" id="ops-system"></div></section>
+ </section>
 
-
-
-  <header class="topbar">
-   <div class="brand"><div class="brandmark"><i class="fa-solid fa-utensils"></i></div><div><h1>FreeMenu POS</h1><p>Master Billing Station <span style="color:#34d399">• Online</span></p></div><span class="status"><span class="online-dot"></span> Store Online</span></div>
-   <div class="utilities">
-    <button class="utility" onclick="openItemModal()"><i class="fa-solid fa-toggle-on"></i> Item On/Off</button>
-    <button class="utility" onclick="toggleStore()"><i class="fa-solid fa-store"></i><span id="storeStatusText">Store Open</span><span class="switch on" id="storeSwitch"></span></button>
-    <button class="utility" onclick="toast('Zomato / Swiggy sync ping: connected demo')"><i class="fa-solid fa-arrows-rotate"></i> Zomato/Swiggy <span class="online-dot"></span></button>
-    <button class="utility" onclick="openAlerts()"><i class="fa-regular fa-bell"></i><span id="alertCount">3</span></button>
-    <button class="utility" onclick="openHelp()"><i class="fa-solid fa-headset"></i> Need Help</button>
-   </div>
-  </header>
-  <div class="content">
-   <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:14px;padding:10px 13px;background:#fff;border:1px solid #dce8df;border-radius:10px">
-    <div style="display:flex;align-items:center;gap:9px;color:#315341;font-size:12px"><i class="fa-solid fa-store" style="color:#059669"></i><strong>Spice Garden</strong><span style="color:#91a79a">/</span><span>Master Billing Station</span><span class="status"><span class="online-dot"></span> Online</span></div>
-    <div style="display:flex;align-items:center;gap:12px;color:#617469;font-size:11px"><span><i class="fa-regular fa-calendar"></i> <span id="pos-date"></span></span><span><i class="fa-regular fa-clock"></i> <span id="pos-clock"></span></span></div>
-   </div>
-
-<section id="view-billing" class="view active">
- <div class="billing-shell">
-  <aside class="billing-orders">
-   <div class="billing-toolbar">
-    <button class="pos-pill active" data-mode="Pickup">Pick Up</button>
-    <button class="pos-pill" data-mode="Delivery">Delivery</button>
-    <button class="pos-pill" data-mode="Dine-in">Dine-in</button>
-   </div>
-   <div class="billing-row" style="padding:10px 0;border:0">
-    <input id="order-search" class="billing-input" placeholder="Search order / table" style="width:100%;min-width:0">
-   </div>
-   <div style="display:flex;justify-content:space-between;font-size:11px;color:#617469;padding:5px 2px"><b>ACTIVE ORDERS</b><span id="active-order-count">03</span></div>
-   <div class="order-list" id="order-list">
-    <div class="order-mini active" data-order="378854"><strong>Order #378854</strong><span>Pickup · ₹641.00</span></div>
-    <div class="order-mini" data-order="378853"><strong>Table 04 · #378853</strong><span>Dine-in · ₹546.00</span></div>
-    <div class="order-mini" data-order="378852"><strong>Order #378852</strong><span>Delivery · ₹420.00</span></div>
-   </div>
-   <button class="billing-action primary" id="new-order" style="width:100%;margin-top:8px">＋ New Order</button>
-   <div style="margin-top:18px;border-top:1px solid #dce8df;padding-top:12px;font-size:11px;color:#617469">CLOUD SYNC <b style="color:#059669;float:right">● Online</b></div>
-  </aside>
-  <div class="billing-main">
-   <div class="billing-heading"><h2>Generate Bill</h2><div class="billing-toolbar">
-    <button class="pos-pill" id="item-onoff">◉ Item On/Off</button><button class="pos-pill" id="store-status">● Store Online</button><button class="pos-pill" id="kot-open">▤ KOT Queue</button><button class="pos-pill" id="receipt-open">▣ Receipt</button>
-   </div></div>
-   <div class="billing-row">
-    <label><input type="radio" name="order-mode" value="Delivery"> Delivery</label>
-    <label><input type="radio" name="order-mode" value="Pickup" checked> Pick Up</label>
-    <label><input type="radio" name="order-mode" value="Dine-in"> Dine-in</label>
-    <label>Table <select class="billing-input" id="table-select"><option>Choose table</option><option>Table 01</option><option>Table 02</option><option>Table 03</option><option>Table 04</option><option>Table 05</option></select></label>
-   </div>
-   <div class="billing-row">
-    <label>Mobile</label><input class="billing-input" id="customer-mobile" placeholder="10 digit mobile" maxlength="10">
-    <label>Name</label><input class="billing-input" id="customer-name" placeholder="Customer name">
-    <label>Address</label><input class="billing-input" id="customer-address" placeholder="Address / locality" style="flex:1">
-   </div>
-   <div class="billing-row">
-    <input id="menu-search" class="billing-input billing-search" placeholder="Search menu items… (type and press Enter)">
-    <div class="billing-category" id="billing-categories">
-     <button class="pos-pill active" data-category="All">All Items</button><button class="pos-pill" data-category="Main Course">Main Course</button><button class="pos-pill" data-category="Breads">Breads</button><button class="pos-pill" data-category="Starters">Starters</button><button class="pos-pill" data-category="Drinks">Drinks</button>
+ <section id="view-billing" class="view">
+  <div class="pagehead"><div><div class="eyebrow">COUNTER & TABLE ORDERING</div><h2>Generate Bill</h2><p>Create an order, send kitchen tickets and collect payment.</p></div><span class="badge"><span class="dot"></span> Billing ready</span></div>
+  <div class="billing-layout">
+   <section class="panel">
+    <div class="panel-head"><h3><i class="fa-solid fa-utensils" style="color:#059669;margin-right:7px"></i>Menu</h3><span class="tiny muted" id="menu-count">12 items</span></div>
+    <div class="panel-body">
+     <div class="mode-row" id="order-modes"><button class="chip active" data-mode="Dine-in">Dine-in</button><button class="chip" data-mode="Takeaway">Takeaway / Counter</button><button class="chip" data-mode="Delivery">Delivery</button></div>
+     <div class="customer-grid">
+      <label class="field-label">Table<select class="field" id="table-select"><option>Table 01</option><option>Table 02</option><option>Table 03</option><option>Table 04</option><option>Counter</option></select></label>
+      <label class="field-label">Search menu<input class="field" id="menu-search" placeholder="Search items…" autocomplete="off"></label>
+      <label class="field-label">Customer name<input class="field" id="customer-name" placeholder="Name (optional)"></label>
+      <label class="field-label">Mobile number<input class="field" id="customer-mobile" inputmode="numeric" maxlength="10" placeholder="10 digit mobile"></label>
+     </div>
+     <div class="category-row" id="categories"></div>
+     <div class="menu-grid" id="menu-grid"></div>
     </div>
-   </div>
-   <div id="billing-products" class="billing-products"></div>
-   <div style="overflow:auto">
-    <table class="billing-table"><thead><tr><th>Item</th><th>Special Note</th><th>Qty.</th><th>Price</th><th>Amount</th><th></th></tr></thead><tbody id="cart-body"></tbody></table>
-   </div>
-   <div class="billing-totalrow"><div>Total Qty. <strong id="cart-qty">0</strong></div><div>Sub Total <strong id="cart-subtotal">₹0.00</strong></div><div>CGST <strong id="cart-cgst">₹0.00</strong></div><div>SGST <strong id="cart-sgst">₹0.00</strong></div></div>
-   <div class="billing-row"><label>Discount</label><select class="billing-input" id="discount-type"><option value="percent">Percent (%)</option><option value="flat">Flat (₹)</option></select><input class="billing-input" id="discount-value" type="number" min="0" value="0" style="width:90px"><label>Order Notes</label><input class="billing-input" id="order-notes" placeholder="Order instructions" style="flex:1"></div>
-   <div class="billing-totalrow"><div>Grand Total <strong id="cart-total">₹0.00</strong></div><div>Payment Mode <select class="billing-input" id="payment-mode"><option>Cash</option><option>Card</option><option>UPI</option></select></div></div>
-   <div class="billing-bottom"><div class="billing-actions"><button class="billing-action" id="send-kot">Send to KOT</button><button class="billing-action" id="hold-order">Hold</button><button class="billing-action" id="reset-order">Reset</button></div><div class="billing-actions"><button class="billing-action primary" id="save-print">Save &amp; Print</button></div></div>
-  </div>
- </div>
- <div id="receipt-print" style="display:none"></div>
-</section>
-
-   <section id="view-operations" class="view">
-    <div class="hero"><div><div class="eyebrow">Restaurant control center</div><h3>Welcome to FreeMenu POS</h3><p>One workspace for billing, kitchen operations, online orders and outlet performance.</p></div><div class="hero-stats"><div class="hero-stat"><span>Today's Orders</span><strong id="todayOrders">48</strong><em>↑ 8.4% vs yesterday</em></div><div class="hero-stat"><span>Today's Sales</span><strong>₹24,560</strong><em>● Live demo</em></div><div class="hero-stat"><span>Pending KOTs</span><strong id="pendingKots">06</strong><em>Kitchen queue</em></div></div></div>
-    <section class="section"><div class="sectionhead"><div><h3><i class="fa-solid fa-receipt"></i> A — Orders & Billing</h3><p>Counter workflows and order fulfillment</p></div><button class="btn" onclick="navigate('billing')">Open Billing <i class="fa-solid fa-arrow-right"></i></button></div><div class="grid opsgrid" id="ordersTiles"></div></section>
-    <section class="section"><div class="sectionhead"><div><h3><i class="fa-solid fa-wallet"></i> B — Payments & Finance</h3><p>Cash management, expenses and drawer reconciliation</p></div></div><div class="grid opsgrid" id="financeTiles"></div></section>
-    <section class="section"><div class="sectionhead"><div><h3><i class="fa-solid fa-boxes-stacked"></i> C — Menu & Inventory</h3><p>Menu availability, pricing and digital menu controls</p></div><button class="btn" onclick="openItemModal()">Manage Items</button></div><div class="grid opsgrid" id="menuTiles"></div></section>
-    <section class="section"><div class="sectionhead"><div><h3><i class="fa-solid fa-sliders"></i> D — System Settings</h3><p>Hardware, staff devices and order acceptance</p></div><button class="btn" onclick="navigate('settings')">All Settings</button></div><div class="grid opsgrid" id="systemTiles"></div></section>
-    <section class="section"><div class="sectionhead"><div><h3><i class="fa-solid fa-link"></i> Aggregator Integration</h3><p>Demo connection indicators for online channels</p></div><span class="status"><span class="online-dot"></span> Sync healthy</span></div><div class="grid integrations" id="integrations"></div></section>
    </section>
-   <section id="view-live" class="view">
-    <div class="pagehead"><div><div class="eyebrow">Kitchen & aggregator queue</div><h2>Live View</h2><p>Track active KOTs, pickup and delivery orders in one place.</p></div><div class="head-actions"><button class="btn" onclick="toast('Queue refreshed')"><i class="fa-solid fa-rotate"></i> Refresh queue</button><button class="btn primary" onclick="addDemoOrder()">＋ Demo order</button></div></div>
-    <div class="livefilters" id="liveFilters"></div><div class="grid ticketgrid" id="tickets"></div>
+   <section class="panel">
+    <div class="panel-head"><div><h3><i class="fa-solid fa-basket-shopping" style="color:#059669;margin-right:7px"></i>Active Order</h3><div class="tiny muted" id="cart-subtitle">Dine-in · Table 01</div></div><button class="btn" data-action="new-order"><i class="fa-solid fa-plus"></i> New</button></div>
+    <div class="panel-body">
+     <div class="customer-grid" style="margin-top:0"><label class="field-label">Special instruction<input class="field" id="order-note" placeholder="e.g. no onion, less oil"></label><label class="field-label">Discount<select class="field" id="discount-type"><option value="percent">Discount %</option><option value="flat">Discount ₹</option></select></label><label class="field-label">Discount value<input class="field" type="number" id="discount-value" min="0" value="0"></label><label class="field-label">GST rate<select class="field" id="tax-rate"><option value="5">CGST 2.5% + SGST 2.5%</option><option value="0">No GST (0%)</option><option value="12">GST 12% (6% + 6%)</option><option value="18">GST 18% (9% + 9%)</option></select></label></div>
+     <div id="cart-list" class="cart-list"></div>
+     <div class="totals">
+      <div class="total-row"><span>Subtotal</span><strong id="subtotal">₹0.00</strong></div><div class="total-row"><span>Discount</span><strong id="discount-total">−₹0.00</strong></div><div class="total-row"><span>CGST</span><strong id="cgst">₹0.00</strong></div><div class="total-row"><span>SGST</span><strong id="sgst">₹0.00</strong></div><div class="total-row grand"><span>Grand Total</span><strong id="grand-total">₹0.00</strong></div>
+     </div>
+     <div class="payment-row" id="payment-modes"><button class="pay-btn active" data-pay="Cash"><i class="fa-solid fa-money-bill-wave"></i> Cash</button><button class="pay-btn" data-pay="Card"><i class="fa-regular fa-credit-card"></i> Card</button><button class="pay-btn" data-pay="UPI"><i class="fa-solid fa-qrcode"></i> UPI</button></div>
+     <div class="cart-actions"><button class="btn" data-action="send-kot"><i class="fa-solid fa-fire-burner"></i> Send to KOT</button><button class="btn primary" data-action="save-bill"><i class="fa-solid fa-check"></i> Save & Print</button></div>
+     <div class="cart-actions"><button class="btn" data-action="hold-order"><i class="fa-regular fa-clock"></i> Hold</button><button class="btn danger" data-action="reset-cart"><i class="fa-solid fa-rotate-left"></i> Reset</button></div>
+     <div id="receipt-print" class="receipt-print" style="display:none"></div>
+    </div>
    </section>
-   <section id="view-reports" class="view">
-    <div class="pagehead"><div><div class="eyebrow">Performance & reconciliation</div><h2>Reports Hub</h2><p>Review sales, tax, item mix and team performance.</p></div><div class="head-actions"><button class="btn" onclick="toast('Report range: Today')"><i class="fa-regular fa-calendar"></i> Today</button><button class="btn primary" onclick="exportReport()">Export CSV</button></div></div>
-    <div class="grid reportgrid" id="reportCards"></div>
-   </section>
-   <section id="view-billing" class="view">
-    <div class="pagehead"><div><div class="eyebrow">Counter & table ordering</div><h2>Billing</h2><p>Quick links for the active billing workflow.</p></div></div>
-    <div class="grid opsgrid" id="billingTiles"></div>
-   </section>
-   
-<section id="view-settings" class="view">
- <div class="pagehead">
-  <div><div class="eyebrow">OUTLET CONFIGURATION</div><h2>Settings</h2><p>Configure billing, online orders and system behavior for this outlet.</p></div>
-  <button class="btn" data-modal="settings-search"><i class="fa-solid fa-magnifying-glass"></i> Search Settings</button>
- </div>
-
- <section class="settings-group">
-  <div class="settings-group-head"><h3>Billing Screen</h3><p>Customize how your counter billing workflow behaves.</p></div>
-  <div class="settings-grid">
-   <button class="settings-card" data-setting="Display" data-modal="setting-display"><span class="settings-icon"><i class="fa-solid fa-display"></i></span><span class="settings-copy"><strong>Display</strong><small>Customise what appears on the billing screen.</small></span><i class="fa-solid fa-arrow-right settings-arrow"></i></button>
-   <button class="settings-card" data-setting="Calculations" data-modal="setting-calculations"><span class="settings-icon"><i class="fa-solid fa-calculator"></i></span><span class="settings-copy"><strong>Calculations</strong><small>Configure service charges and rounding rules.</small></span><i class="fa-solid fa-arrow-right settings-arrow"></i></button>
-   <button class="settings-card" data-setting="Linked Services" data-modal="setting-linked"><span class="settings-icon"><i class="fa-solid fa-life-ring"></i></span><span class="settings-copy"><strong>Linked Services</strong><small>Set how add-on services work with your POS system.</small></span><i class="fa-solid fa-arrow-right settings-arrow"></i></button>
-   <button class="settings-card" data-setting="Print" data-modal="setting-print"><span class="settings-icon"><i class="fa-solid fa-print"></i></span><span class="settings-copy"><strong>Print</strong><small>Manage printing rules for Bill and KOT.</small></span><i class="fa-solid fa-arrow-right settings-arrow"></i></button>
-   <button class="settings-card" data-setting="Customer" data-modal="setting-customer"><span class="settings-icon"><i class="fa-regular fa-user"></i></span><span class="settings-copy"><strong>Customer</strong><small>Configure phone validation and dues.</small></span><i class="fa-solid fa-arrow-right settings-arrow"></i></button>
   </div>
  </section>
 
- <section class="settings-group">
-  <div class="settings-group-head"><h3>Online/Advance Order</h3><p>Manage incoming orders and online acceptance rules.</p></div>
-  <div class="settings-grid">
-   <button class="settings-card" data-setting="Online Order Configuration" data-modal="setting-online"><span class="settings-icon"><i class="fa-solid fa-gear"></i></span><span class="settings-copy"><strong>Online Order Configuration</strong><small>Manage general online order settings, auto-acceptance, food ready controls, and outlet timings.</small></span><i class="fa-solid fa-arrow-right settings-arrow"></i></button>
-   <button class="settings-card" data-setting="Advance Order Configuration" data-modal="setting-advance"><span class="settings-icon"><i class="fa-regular fa-calendar-check"></i></span><span class="settings-copy"><strong>Advance Order Configuration</strong><small>Control advance order configurations.</small></span><i class="fa-solid fa-arrow-right settings-arrow"></i></button>
-   <button class="settings-card" data-setting="Online Order System Configuration" data-modal="setting-online-system"><span class="settings-icon"><i class="fa-solid fa-desktop"></i></span><span class="settings-copy"><strong>Online Order System Configuration</strong><small>Manage system-level settings and operational controls for online orders.</small></span><i class="fa-solid fa-arrow-right settings-arrow"></i></button>
-  </div>
+ <section id="view-live" class="view">
+  <div class="pagehead"><div><div class="eyebrow">KITCHEN DISPLAY SYSTEM</div><h2>Live View & Online Orders</h2><p>Review active KOTs and update preparation status.</p></div><button class="btn" data-action="refresh-live"><i class="fa-solid fa-rotate"></i> Refresh</button></div>
+  <div class="chips" id="live-filters" style="margin-bottom:14px"><button class="chip active" data-filter="All">All</button><button class="chip" data-filter="Dine-in">Dine-in</button><button class="chip" data-filter="Delivery">Delivery</button><button class="chip" data-filter="Takeaway">Pick Up</button><button class="chip" data-filter="Swiggy">Swiggy</button><button class="chip" data-filter="Zomato">Zomato</button></div>
+  <div class="stat-grid"><div class="stat"><div class="label">Active Tickets</div><div class="value" id="live-active">2</div></div><div class="stat"><div class="label">Food Ready</div><div class="value" id="live-ready">0</div></div><div class="stat"><div class="label">Dispatch</div><div class="value" id="live-dispatch">0</div></div><div class="stat"><div class="label">Delivered</div><div class="value" id="live-delivered">0</div></div></div>
+  <div class="ticket-grid" id="ticket-grid"></div>
  </section>
 
- <section class="settings-group">
-  <div class="settings-group-head"><h3>System Setting</h3><p>Configure station sync and connected POS devices.</p></div>
-  <div class="settings-grid">
-   <button class="settings-card" data-setting="Billing System" data-modal="setting-billing-system"><span class="settings-icon"><i class="fa-solid fa-receipt"></i></span><span class="settings-copy"><strong>Billing System</strong><small>Set how your POS updates with the central system.</small></span><i class="fa-solid fa-arrow-right settings-arrow"></i></button>
-   <button class="settings-card" data-setting="Connect Captain & Secondary POS" data-modal="setting-connect"><span class="settings-icon"><i class="fa-solid fa-qrcode"></i></span><span class="settings-copy"><strong>Connect Captain &amp; Secondary POS</strong><small>Generate a QR code to connect captain and secondary POS.</small></span><i class="fa-solid fa-arrow-right settings-arrow"></i></button>
-  </div>
+ <section id="view-reports" class="view">
+  <div class="pagehead"><div><div class="eyebrow">BUSINESS INTELLIGENCE</div><h2>Reports Hub</h2><p>Review demo sales, item performance, invoices, tax and staff summaries.</p></div><div class="chips"><input class="field" style="width:auto" type="date" id="report-date"><button class="btn" data-action="export-report"><i class="fa-solid fa-file-csv"></i> Export CSV</button></div></div>
+  <div class="stat-grid"><div class="stat"><div class="label">Gross Sales (demo)</div><div class="value">₹24,560</div><div class="foot">Today's sample value</div></div><div class="stat"><div class="label">Invoices</div><div class="value" id="report-invoices">48</div><div class="foot">Saved in this session</div></div><div class="stat"><div class="label">Tax Collected</div><div class="value" id="report-tax">₹1,170</div><div class="foot">Sample estimate</div></div><div class="stat"><div class="label">Avg. Order</div><div class="value">₹511.67</div><div class="foot">Demo metric</div></div></div>
+  <div class="report-grid" id="report-grid"></div>
+  <section class="section" style="margin-top:18px"><div class="section-head"><div><h3>Recent Invoices</h3><p>Invoices saved in this browser session.</p></div></div><div class="table-wrap"><table><thead><tr><th>Invoice</th><th>Time</th><th>Order Mode</th><th>Payment</th><th>Items</th><th>Total</th></tr></thead><tbody id="invoice-rows"></tbody></table></div></section>
  </section>
- <div id="settings-detail" class="settings-detail" hidden></div>
-</section>
 
-  </div>
- </main>
+ <section id="view-settings" class="view">
+  <div class="pagehead"><div><div class="eyebrow">OUTLET CONFIGURATION</div><h2>Settings</h2><p>Configure billing, online orders and system behavior for this outlet.</p></div><button class="btn" data-action="settings-search"><i class="fa-solid fa-magnifying-glass"></i> Search Settings</button></div>
+  <section class="settings-group"><div class="settings-group-head"><h3>Billing Screen</h3><p>Customize how your counter billing workflow behaves.</p></div><div class="settings-grid" id="settings-billing"></div></section>
+  <section class="settings-group"><div class="settings-group-head"><h3>Online/Advance Order</h3><p>Manage incoming orders and online acceptance rules.</p></div><div class="settings-grid" id="settings-online"></div></section>
+  <section class="settings-group"><div class="settings-group-head"><h3>System Setting</h3><p>Configure station sync and connected POS devices.</p></div><div class="settings-grid" id="settings-system"></div></section>
+  <div id="settings-detail" class="settings-detail" hidden></div>
+ </section>
 </div>
-<div class="modalback" id="modalBack" onclick="backdropClose(event)"><div class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle"><div class="modalhead"><h3 id="modalTitle">Details</h3><button class="close" onclick="closeModal()" aria-label="Close">×</button></div><div class="modalbody" id="modalBody"></div></div></div>
-<div id="toast" class="toast" role="status"></div>
+</main>
+</div>
+<div class="modal-backdrop" id="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="modal-title"><div class="modal"><div class="modal-head"><h3 id="modal-title">Details</h3><button class="iconbtn" data-action="close-modal" aria-label="Close"><i class="fa-solid fa-xmark"></i></button></div><div class="modal-body" id="modal-body"></div><div class="modal-foot"><button class="btn" data-action="close-modal">Close</button><button class="btn primary" id="modal-save">Save</button></div></div></div>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
 <script>
-// ------------------------------------
-// Mock data/state: replace with backend/Supabase APIs when wiring live data.
-// ------------------------------------
+"use strict";
+/* ===================== Demo state (replace with API/Supabase later) ===================== */
 const state={
- view:'operations',storeOpen:true,itemAvailability:{'Paneer Tikka':true,'Butter Paneer Masala':true,'Chicken Biryani':true,'Masala Chaas':false},
- liveFilter:'All',autoAccept:false,printerWidth:'80mm',taxRate:5,
- orders:[
-  {id:'FM-2408',kot:'KOT-071',source:'Dine-in',table:'T04',elapsed:8,items:[['Paneer Tikka',2],['Butter Naan',4]],note:'Less spicy, please',total:696,status:'Cooking'},
-  {id:'SW-9182',kot:'KOT-072',source:'Swiggy',table:'',elapsed:14,items:[['Chicken Biryani',1],['Masala Chaas',2]],note:'Ring customer on arrival',total:417,status:'Cooking'},
-  {id:'ZM-5821',kot:'KOT-073',source:'Zomato',table:'',elapsed:4,items:[['Veg Biryani',1],['Gulab Jamun',2]],note:'No cutlery required',total:397,status:'New'},
-  {id:'FM-2410',kot:'KOT-074',source:'Pick Up',table:'',elapsed:19,items:[['Crispy Corn',1],['Fresh Lime Soda',2]],note:'Customer waiting at counter',total:347,status:'Ready'}
- ],
- reports:[
-  {title:'Category Summary',desc:'Sales mix and contribution by menu category.',icon:'fa-chart-pie',tone:'',value:'₹24,560'},
-  {title:'Item Sales',desc:'Best sellers, slow movers and quantity sold.',icon:'fa-burger',tone:'blue',value:'186 items'},
-  {title:'Invoice Report',desc:'Bill register, cancellations and payment modes.',icon:'fa-file-invoice',tone:'violet',value:'48 invoices'},
-  {title:'Captain Performance',desc:'Orders and sales by waiter/captain.',icon:'fa-user-tie',tone:'amber',value:'6 team members'},
-  {title:'Tax Collection',desc:'GST summary split by CGST and SGST.',icon:'fa-percent',tone:'blue',value:'₹1,169.52'},
-  {title:'NC Item Summary',desc:'Complimentary and non-chargeable items.',icon:'fa-gift',tone:'rose',value:'12 items'}
- ]
+ view:"operations",mode:"Dine-in",category:"All",payment:"Cash",storeOpen:true,liveFilter:"All",
+ cart:[],tickets:[
+  {id:"KOT-1042",order:"ORD-7785",mode:"Takeaway",source:"Counter",table:"Pickup",customer:"Walk-in",note:"Customer will pick up the order",status:"Preparing",created:Date.now()-11*60000,total:546,items:[{name:"Paneer Butter Masala",qty:1},{name:"Plain Naan",qty:1},{name:"Tandoori Roti",qty:4}]},
+  {id:"KOT-1043",order:"ORD-7786",mode:"Takeaway",source:"Swiggy",table:"Pickup",customer:"Online customer",note:"Pack carefully",status:"Preparing",created:Date.now()-6*60000,total:641,items:[{name:"Dal Makhani",qty:1},{name:"Paneer Lababdar",qty:1},{name:"Tandoori Roti",qty:6}]}
+ ],invoices:[],held:[],nextInvoice:1001,nextKot:1044,itemsOn:{},modal:{save:null}
 };
-const tileData={
- orders:[
- ['Orders List','View bills, statuses and table orders','fa-list-check','','Open order list','orders'],
- ['Online Orders','Swiggy, Zomato and direct delivery','fa-motorcycle','rose','12 in queue','online'],
- ['KOT Queue','Kitchen tickets and preparation status','fa-fire-burner','amber','6 pending','live'],
- ['Due Payments','Outstanding customer balances','fa-clock','rose','₹2,450 due','dues'],
- ['Billing Screen','Open counter billing workflow','fa-cash-register','','Start billing','billing'],
- ['Bill / KOT Print Rules','Configure copies and print routing','fa-print','blue','80mm thermal','print'],
- ['Delivery Dispatch','Assign delivery boys and track trips','fa-route','violet','3 available','dispatch']
+const categories=["All","Starters","Main Course","Breads","Rice","Beverages","Desserts"];
+const menu=[
+ {id:1,name:"Paneer Butter Masala",category:"Main Course",price:220,veg:true,icon:"fa-bowl-food",stock:true},
+ {id:2,name:"Chicken Tikka",category:"Starters",price:260,veg:false,icon:"fa-drumstick-bite",stock:true},
+ {id:3,name:"Dal Makhani",category:"Main Course",price:180,veg:true,icon:"fa-bowl-rice",stock:true},
+ {id:4,name:"Tandoori Roti",category:"Breads",price:30,veg:true,icon:"fa-cookie-bite",stock:true},
+ {id:5,name:"Garlic Naan",category:"Breads",price:40,veg:true,icon:"fa-bread-slice",stock:true},
+ {id:6,name:"Jeera Rice",category:"Rice",price:120,veg:true,icon:"fa-bowl-rice",stock:true},
+ {id:7,name:"Veg Spring Roll",category:"Starters",price:150,veg:true,icon:"fa-leaf",stock:true},
+ {id:8,name:"Masala Fries",category:"Starters",price:110,veg:true,icon:"fa-french-fries",stock:true},
+ {id:9,name:"Cold Coffee",category:"Beverages",price:130,veg:true,icon:"fa-mug-hot",stock:true},
+ {id:10,name:"Gulab Jamun",category:"Desserts",price:80,veg:true,icon:"fa-cookie",stock:true},
+ {id:11,name:"Veg Pulao",category:"Rice",price:160,veg:true,icon:"fa-bowl-rice",stock:true},
+ {id:12,name:"Butter Chicken",category:"Main Course",price:290,veg:false,icon:"fa-drumstick-bite",stock:true}
+];
+const $=s=>document.querySelector(s), $$=s=>Array.from(document.querySelectorAll(s));
+const rupees=n=>"₹"+Number(n||0).toLocaleString("en-IN",{minimumFractionDigits:2,maximumFractionDigits:2});
+const escapeHTML=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+function toast(msg){const el=$("#toast");el.textContent=msg;el.classList.add("show");clearTimeout(toast.timer);toast.timer=setTimeout(()=>el.classList.remove("show"),2600)}
+function navigate(view){if(!$("#view-"+view))return;state.view=view;$$(".view").forEach(x=>x.classList.toggle("active",x.id==="view-"+view));$$(".navbtn[data-view]").forEach(x=>x.classList.toggle("active",x.dataset.view===view));$("#sidebar").classList.remove("open");if(view==="billing"){renderMenu();renderCart()}if(view==="live")renderTickets();if(view==="reports")renderReports();window.scrollTo({top:0,behavior:"smooth"})}
+function updateClock(){const d=new Date();$("#today").textContent=d.toLocaleDateString("en-IN",{day:"2-digit",month:"short",year:"numeric"});$("#clock").textContent=d.toLocaleTimeString("en-IN",{hour:"2-digit",minute:"2-digit"})}
+function renderOps(){
+ const groups={
+ "ops-orders":[["Orders","View bills, statuses and table orders","fa-receipt","reports"],["Online Orders","Swiggy, Zomato and direct delivery","fa-truck-fast","live"],["KOTs Queue","Kitchen tickets and preparation status","fa-fire-burner","live"],["Due Payment","Review outstanding customer payments","fa-money-bill-transfer","reports"],["Billing Screen","Open counter billing workflow","fa-cash-register","billing"],["Bill / KOT Print","Configure bill and KOT printing rules","fa-print","setting:Print"],["Custom Order Status","Track custom order states","fa-list-check","live"],["Delivery Boys","Delivery dispatch and assignment","fa-motorcycle","live"]],
+ "ops-finance":[["Cash Flow","Daily cash summary","fa-money-bill-wave","report:Cash Flow"],["Expense","Track outlet expenses","fa-wallet","report:Expense Report"],["Withdrawal","Cash withdrawal entry","fa-money-bill-transfer","report:Drawer Reconciliation"],["Cash Top-Up","Add cash to drawer","fa-circle-plus","report:Cash Top-Up"],["Currency Conversion","Multi-currency support","fa-coins","setting:Calculations"]],
+ "ops-menu":[["Menu","Manage menu items and categories","fa-book-open","setting:Menu"],["Menu Item On/Off","Instantly mark items unavailable","fa-toggle-on","item-onoff"],["Tax","GST rates and tax configuration","fa-file-invoice-dollar","setting:Calculations"],["Discount","Offers and coupons","fa-percent","setting:Discounts"],["Customers","Customer details and dues","fa-users","setting:Customer"],["Feedback","Review customer feedback","fa-comment-dots","report:Feedback"],["LED Display","Customer-facing display options","fa-display","setting:Display"],["Inventory","Track stock levels","fa-boxes-stacked","setting:Inventory"],["Dual Screen","Customer display pairing","fa-table-columns","setting:Linked Services"]],
+ "ops-system":[["Billing User Profile","Current counter operator profile","fa-id-badge","setting:Billing System"],["Manual Sync","Sync station queue (demo)","fa-rotate","sync"],["Alerts","Review active alerts","fa-bell","live"],["Service Renewal","Plan and service status","fa-arrows-rotate","setting:Billing System"],["Help","Help and support","fa-circle-question","help"],["Language Profiles","Language and regional preferences","fa-language","setting:Display"],["Settings","Outlet and POS configuration","fa-gear","settings"],["Connect Captain & Secondary POS","Pair staff and secondary terminals","fa-qrcode","setting:Connect Captain & Secondary POS"]]
+ };
+ Object.entries(groups).forEach(([id,items])=>{const el=$("#"+id);el.innerHTML=items.map(([title,desc,icon,target])=>`<button class="action-card" data-target="${escapeHTML(target)}"><span class="action-icon"><i class="fa-solid ${icon}"></i></span><span class="action-copy"><strong>${escapeHTML(title)}</strong><small>${escapeHTML(desc)}</small></span><i class="fa-solid fa-arrow-right arrow"></i></button>`).join("")});
+}
+function renderCategories(){$("#categories").innerHTML=categories.map(c=>`<button class="chip ${state.category===c?"active":""}" data-category="${escapeHTML(c)}">${escapeHTML(c)}</button>`).join("")}
+function renderMenu(){
+ renderCategories();const q=$("#menu-search").value.trim().toLowerCase();
+ const filtered=menu.filter(m=>(state.category==="All"||m.category===state.category)&&m.name.toLowerCase().includes(q)&&m.stock);
+ $("#menu-count").textContent=filtered.length+" available items";
+ $("#menu-grid").innerHTML=filtered.map(m=>`<button class="menu-item" data-add="${m.id}"><div class="food-thumb"><i class="fa-solid ${m.icon}"></i></div><span class="food-tag ${m.veg?"":"nonveg"}">${m.veg?"VEG":"NON-VEG"}</span><strong>${escapeHTML(m.name)}</strong><div class="price">${rupees(m.price)}</div><span class="add-plus"><i class="fa-solid fa-plus"></i></span></button>`).join("")||'<div class="empty" style="grid-column:1/-1">No available menu items found.</div>';
+}
+function addItem(id){const m=menu.find(x=>x.id===Number(id));if(!m||!m.stock){toast("This item is currently unavailable.");return}const found=state.cart.find(x=>x.id===m.id);if(found)found.qty++;else state.cart.push({...m,qty:1,note:""});renderCart();toast(m.name+" added")}
+function cartMath(){const subtotal=state.cart.reduce((s,x)=>s+x.price*x.qty,0);const dv=Math.max(0,Number($("#discount-value").value)||0);const discount=Math.min(subtotal,$("#discount-type").value==="percent"?subtotal*Math.min(dv,100)/100:dv);const taxable=Math.max(0,subtotal-discount);const tax=taxable*(Number($("#tax-rate").value)||0)/100;return{subtotal,discount,taxable,cgst:tax/2,sgst:tax/2,total:Math.round((taxable+tax)*100)/100}}
+function renderCart(){
+ $("#cart-subtitle").textContent=state.mode+" · "+(state.mode==="Dine-in"?$("#table-select").value:state.mode==="Delivery"?"Delivery order":"Counter pickup");
+ $("#cart-list").innerHTML=state.cart.map(x=>`<div class="cart-item"><div><strong>${escapeHTML(x.name)}</strong><div class="subline">${rupees(x.price)} each · ${escapeHTML(x.category)}</div></div><div class="qty"><button data-qty="${x.id}" data-delta="-1" aria-label="Decrease quantity">−</button><span>${x.qty}</span><button data-qty="${x.id}" data-delta="1" aria-label="Increase quantity">+</button><button class="btn danger" style="padding:4px 7px" data-remove="${x.id}" aria-label="Remove item"><i class="fa-solid fa-trash"></i></button></div><input class="field cart-note" data-note="${x.id}" value="${escapeHTML(x.note)}" placeholder="Special note for ${escapeHTML(x.name)}"></div>`).join("")||'<div class="empty"><i class="fa-solid fa-basket-shopping" style="font-size:26px;display:block;margin-bottom:8px"></i>Cart is empty. Add menu items to start a bill.</div>';
+ const m=cartMath();$("#subtotal").textContent=rupees(m.subtotal);$("#discount-total").textContent="−"+rupees(m.discount);$("#cgst").textContent=rupees(m.cgst);$("#sgst").textContent=rupees(m.sgst);$("#grand-total").textContent=rupees(m.total);
+}
+function sendKOT(){if(!state.cart.length){toast("Add items before sending a KOT.");return}const t={id:"KOT-"+state.nextKot++,order:"ORD-"+Math.floor(7000+Math.random()*2000),mode:state.mode,source:"Counter",table:state.mode==="Dine-in"?$("#table-select").value:state.mode==="Delivery"?"Delivery":"Pickup",customer:$("#customer-name").value.trim()||"Walk-in",note:$("#order-note").value.trim()||state.cart.map(x=>x.note).filter(Boolean).join(", ")||"No special instructions",status:"Preparing",created:Date.now(),total:cartMath().total,items:state.cart.map(x=>({name:x.name,qty:x.qty,note:x.note}))};state.tickets.unshift(t);$("#kot-count").textContent=state.tickets.filter(x=>x.status==="Preparing").length;renderTickets();toast(t.id+" sent to kitchen. Cart retained.");}
+function saveBill(){if(!state.cart.length){toast("Please add at least one item before saving.");return}const m=cartMath();const inv={id:"INV-"+state.nextInvoice++,time:new Date().toLocaleTimeString("en-IN",{hour:"2-digit",minute:"2-digit"}),mode:state.mode,payment:state.payment,items:state.cart.reduce((n,x)=>n+x.qty,0),total:m.total,cart:state.cart.map(x=>({...x})),customer:$("#customer-name").value.trim(),mobile:$("#customer-mobile").value.trim(),note:$("#order-note").value.trim(),...m};state.invoices.unshift(inv);renderReports();renderReceipt(inv);toast(inv.id+" saved in this browser session.");if(confirm("Bill saved in this demo. Open print dialog for receipt?"))window.print();state.cart=[];renderCart();$("#dash-orders").textContent=48+state.invoices.length;$("#dash-sales").textContent=rupees(24560+state.invoices.reduce((a,x)=>a+x.total,0));}
+function renderReceipt(inv){$("#receipt-print").style.display="block";$("#receipt-print").innerHTML=`<div style="width:72mm;max-width:100%;margin:auto;font:12px monospace;color:#000"><center><b style="font-size:17px">SPICE GARDEN</b><br>Restaurant & Cafe<br>Tax Invoice<br>--------------------------------<br>${escapeHTML(inv.id)}<br>${new Date().toLocaleString("en-IN")}<br>${escapeHTML(inv.mode)} · ${escapeHTML(inv.payment)}<br></center><hr>${inv.cart.map(x=>`<div style="display:flex;justify-content:space-between;gap:8px"><span>${escapeHTML(x.name)} x${x.qty}</span><span>${(x.price*x.qty).toFixed(2)}</span></div>`).join("")}<hr><div style="display:flex;justify-content:space-between"><span>Subtotal</span><b>${inv.subtotal.toFixed(2)}</b></div><div style="display:flex;justify-content:space-between"><span>Discount</span><b>${inv.discount.toFixed(2)}</b></div><div style="display:flex;justify-content:space-between"><span>CGST</span><b>${inv.cgst.toFixed(2)}</b></div><div style="display:flex;justify-content:space-between"><span>SGST</span><b>${inv.sgst.toFixed(2)}</b></div><hr><div style="display:flex;justify-content:space-between;font-size:15px"><b>GRAND TOTAL</b><b>${inv.total.toFixed(2)}</b></div><center><br>Thank you! Please visit again.</center></div>`}
+function renderTickets(){
+ const filtered=state.tickets.filter(t=>state.liveFilter==="All"||t.mode===state.liveFilter||t.source===state.liveFilter);
+ $("#ticket-grid").innerHTML=filtered.map(t=>`<article class="ticket"><div class="ticket-head"><div><strong>${escapeHTML(t.source)} · ${escapeHTML(t.id)}</strong><div class="tiny muted" style="margin-top:5px">${escapeHTML(t.order)} · ${escapeHTML(t.table)}</div></div><span class="badge ${t.status==="Preparing"?"orange":""}">${escapeHTML(t.status)}</span></div><div class="ticket-body"><div class="tiny muted">${escapeHTML(t.customer)} · ${Math.max(0,Math.floor((Date.now()-t.created)/60000))} min ago</div><div class="ticket-items">${t.items.map(i=>`<div><strong>${i.qty} ×</strong> ${escapeHTML(i.name)} ${i.note?`<span class="muted">(${escapeHTML(i.note)})</span>`:""}</div>`).join("")}</div><div class="tiny muted"><i class="fa-regular fa-note-sticky"></i> ${escapeHTML(t.note)}</div><div style="font-size:15px;font-weight:850;margin-top:10px">${rupees(t.total)}</div></div><div class="ticket-foot">${t.status==="Preparing"?`<button class="btn primary" data-ticket-action="ready" data-ticket="${t.id}">Food Ready</button>`:t.status==="Ready"?`<button class="btn primary" data-ticket-action="dispatch" data-ticket="${t.id}">Dispatch</button>`:`<button class="btn" data-ticket-action="details" data-ticket="${t.id}">Details</button>`}<button class="btn" data-ticket-action="print" data-ticket="${t.id}"><i class="fa-solid fa-print"></i></button></div></article>`).join("")||'<div class="empty" style="grid-column:1/-1">No tickets match this filter.</div>';
+ $("#live-active").textContent=state.tickets.filter(t=>t.status==="Preparing").length;$("#live-ready").textContent=state.tickets.filter(t=>t.status==="Ready").length;$("#live-dispatch").textContent=state.tickets.filter(t=>t.status==="Dispatched").length;$("#live-delivered").textContent=state.tickets.filter(t=>t.status==="Delivered").length;$("#kot-count").textContent=state.tickets.filter(t=>t.status==="Preparing").length;
+}
+const reports=[
+ ["Category Summary","Categories sold for the selected date and time.","fa-chart-pie"],
+ ["Item Summary","Items and quantities sold across categories.","fa-list-ol"],
+ ["Sales Summary","Invoice-wise sales and collection totals.","fa-chart-line"],
+ ["Order Report","Order-wise status and payment collection.","fa-receipt"],
+ ["Executive Sales Report","Daily sales, bookings and trends.","fa-chart-column"],
+ ["Employee Summary","Captain, waiter and delivery performance.","fa-users"],
+ ["Group Summary","Group-wise item sales summary.","fa-layer-group"],
+ ["Variation Summary","Variants and add-ons sold today.","fa-sliders"],
+ ["Cover Size Summary","Number of guests or covers served.","fa-people-group"],
+ ["Tip Summary","Employee-wise and table-wise tips.","fa-hand-holding-dollar"],
+ ["Counter Summary","Counter-wise collection report.","fa-cash-register"],
+ ["Locality Wise Summary","Locality order count and total.","fa-location-dot"],
+ ["Captain Wise Summary","Total sales made by each captain.","fa-user-tie"],
+ ["Settlement Summary","Counter and billing user settlement.","fa-file-invoice"],
+ ["NC Item Summary","Items discounted or price-changed before billing.","fa-clipboard-check"],
+ ["Tax Collection","CGST, SGST and GST collection totals.","fa-percent"],
+ ["Invoice Report","Saved invoice listing and totals.","fa-file-lines"]
+];
+function renderReports(){
+ $("#report-grid").innerHTML=reports.map(([name,desc,icon])=>`<button class="report-card" data-report="${escapeHTML(name)}"><span class="action-icon"><i class="fa-solid ${icon}"></i></span><span><strong>${escapeHTML(name)}</strong><p>${escapeHTML(desc)}</p></span><i class="fa-solid fa-arrow-right arrow"></i></button>`).join("");
+ $("#invoice-rows").innerHTML=state.invoices.map(i=>`<tr><td><strong>${escapeHTML(i.id)}</strong></td><td>${escapeHTML(i.time)}</td><td>${escapeHTML(i.mode)}</td><td>${escapeHTML(i.payment)}</td><td>${i.items}</td><td>${rupees(i.total)}</td></tr>`).join("")||'<tr><td colspan="6" class="empty">No invoices saved in this browser session yet.</td></tr>';
+ $("#report-invoices").textContent=48+state.invoices.length;$("#report-tax").textContent=rupees(1170+state.invoices.reduce((a,x)=>a+x.cgst+x.sgst,0));
+}
+const settingData={
+ billing:[
+ ["Display","Customise what appears on the billing screen.","fa-display","display"],
+ ["Calculations","Configure service charges and rounding rules.","fa-calculator","calculations"],
+ ["Linked Services","Set how add-on services work with your POS system.","fa-life-ring","linked"],
+ ["Print","Manage printing rules for Bill and KOT.","fa-print","print"],
+ ["Customer","Configure phone validation and dues.","fa-user-circle","customer"]
  ],
- finance:[
- ['Cash Flow','Cash, card and UPI collections','fa-money-bill-transfer','','Today ₹24,560','cashflow'],
- ['Expense Tracker','Record daily outlet expenses','fa-wallet','amber','₹3,210 logged','expenses'],
- ['Drawer Reconciliation','Opening cash, paid in/out and closing','fa-calculator','blue','Reconcile drawer','drawer'],
- ['Currency','Set currency and rounding preferences','fa-coins','violet','INR · ₹','currency']
- ],
- menu:[
- ['Full Menu Editor','Items, variants, add-ons and categories','fa-book-open','','128 menu items','menu'],
- ['Instant Item On / Off','Temporarily hide unavailable items','fa-toggle-on','', 'Manage availability','items'],
- ['Tax & GST','Configure GST rates and tax split','fa-percent','violet','CGST + SGST','tax'],
- ['Discounts & Coupons','Flat, percentage and promo offers','fa-tags','rose','4 active offers','discounts'],
- ['Dual Display / QR Menu','Sync customer display and QR menu','fa-qrcode','blue','QR synced','qr']
+ online:[
+ ["Online Order Configuration","Manage general online order settings, auto-acceptance, food ready controls, and outlet timings.","fa-gear","online"],
+ ["Advance Order Configuration","Control advance order configurations.","fa-calendar-check","advance"],
+ ["Online Order System Configuration","Manage system-level settings and operational controls for online orders.","fa-desktop","online-system"]
  ],
  system:[
- ['Thermal Printer Setup','Select 58mm / 80mm and test print','fa-print','blue','80mm selected','printer'],
- ['Captain / Waiter App','Connect staff devices using QR','fa-mobile-screen-button','violet','Generate QR','captain'],
- ['Online Auto-Accept','Rules for aggregator order acceptance','fa-circle-check','','Currently manual','autoaccept']
+ ["Billing System","Set how your POS updates with the central system.","fa-receipt","billing-system"],
+ ["Connect Captain & Secondary POS","Generate a QR code to connect captain and secondary POS.","fa-qrcode","connect"]
  ]
 };
-const integrations=[
- {name:'Zomato',sub:'Online order channel',icon:'fa-utensils',orders:24,revenue:'₹8,540'},
- {name:'Swiggy',sub:'Online order channel',icon:'fa-motorcycle',orders:18,revenue:'₹6,210'},
- {name:'Own Delivery',sub:'Direct ordering & dispatch',icon:'fa-truck-fast',orders:6,revenue:'₹2,340'}
-];
-const filters=['All','Dine-in','Delivery','Pick Up','Swiggy','Zomato'];
-function esc(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
-function tileMarkup(t){return `<button class="tile" onclick="tileAction('${esc(t[5])}')"><div class="tiletop"><div class="tileicon ${t[3]}"><i class="fa-solid ${t[2]}"></i></div><i class="fa-solid fa-arrow-up-right-from-square arrow"></i></div><div><h4>${esc(t[0])}</h4><p>${esc(t[1])}</p></div><div class="tilefoot"><span class="tinybadge ${t[3]==='rose'?'neutral':''}">${esc(t[4])}</span><i class="fa-solid fa-arrow-right arrow"></i></div></button>`}
-function renderTiles(){document.getElementById('ordersTiles').innerHTML=tileData.orders.map(tileMarkup).join('');document.getElementById('financeTiles').innerHTML=tileData.finance.map(tileMarkup).join('');document.getElementById('menuTiles').innerHTML=tileData.menu.map(tileMarkup).join('');document.getElementById('systemTiles').innerHTML=tileData.system.map(tileMarkup).join('');document.getElementById('billingTiles').innerHTML=[tileData.orders[4],tileData.orders[0],tileData.orders[2],tileData.orders[1]].map(tileMarkup).join('')}
-function renderIntegrations(){document.getElementById('integrations').innerHTML=integrations.map(i=>`<article class="integration"><div class="integration-head"><div class="brandbadge"><i class="fa-solid ${i.icon}"></i></div><div><h4>${esc(i.name)}</h4><p>${esc(i.sub)}</p></div><span class="status sync"><span class="online-dot"></span> Live</span></div><div class="integration-foot"><span><span class="online-dot"></span> Orders syncing</span><span>Toggle <button aria-label="Toggle ${esc(i.name)} sync" class="switch on" onclick="toggleSync(this,'${esc(i.name)}')"></button></span></div><div class="metrics"><div class="metric"><span>Today's orders</span><strong>${i.orders}</strong></div><div class="metric"><span>Revenue</span><strong>${i.revenue}</strong></div></div></article>`).join('')}
-function navigate(view){
- state.view=view;
- document.querySelectorAll('.view').forEach(v=>v.classList.toggle('active',v.id==='view-'+view));
- document.querySelectorAll('.navbtn').forEach(b=>b.classList.toggle('active',b.dataset.view===view));
- if(view==='live')renderTickets();
- if(view==='reports')renderReports();
- window.scrollTo({top:0,behavior:'smooth'});
-}
-function tileAction(action){
- const map={billing:()=>navigate('billing'),live:()=>navigate('live'),online:()=>{state.liveFilter='Swiggy';navigate('live')},items:openItemModal,menu:()=>showInfo('Full Menu Editor','Menu editor demo: categories, item names, prices, veg/non-veg flags and availability would be managed here.'),tax:()=>openConfig('Tax & GST',`<label class="formfield">GST rate<select id="taxConfig"><option value="0">0%</option><option value="5" selected>5%</option><option value="12">12%</option><option value="18">18%</option></select></label><p style="color:#91a8b1;font-size:11px;margin-top:12px">GST is split equally into CGST and SGST for this demo.</p>`,()=>{state.taxRate=Number(document.getElementById('taxConfig').value);toast('Demo tax setting saved')}),
- print:()=>openConfig('Bill / KOT Print Rules',`<label class="formfield">Thermal paper width<select id="printWidth"><option>58mm</option><option selected>80mm</option></select></label><label class="formfield" style="margin-top:12px">Bill copies<select><option>1 copy</option><option>2 copies</option></select></label><label class="formfield" style="margin-top:12px">KOT routing<select><option>Kitchen printer</option><option>Counter printer</option></select></label>`,()=>{state.printerWidth=document.getElementById('printWidth').value;toast('Print rules saved in demo')}),
- printer:()=>tileAction('print'),autoaccept:()=>openConfig('Online Auto-Accept',`<p style="color:#a5bac0;margin-bottom:12px">Automatically accept incoming Swiggy/Zomato orders in this demo.</p><button class="btn ${state.autoAccept?'primary':''}" onclick="state.autoAccept=!state.autoAccept;closeModal();toast('Auto-accept '+(state.autoAccept?'enabled':'disabled'))">${state.autoAccept?'Disable auto-accept':'Enable auto-accept'}</button>`,null),
- qr:()=>showInfo('Dual Display / QR Menu','QR menu sync is shown as connected demo status. A real QR URL and live menu endpoint must be configured for production.'),
- captain:()=>showInfo('Captain / Waiter App','Demo staff pairing QR. Connect your real staff application endpoint to issue secure device pairing tokens.'),
- orders:()=>showInfo('Orders List',`<div class="grid gap-2">${state.orders.map(o=>`<div class="p-3 rounded-lg border border-slate-700"><strong>${esc(o.id)}</strong> · ${esc(o.source)} · ${esc(o.status)}<div class="text-slate-600 text-xs mt-1">${o.items.length} item lines · ₹${o.total}</div></div>`).join('')}</div>`),
- dues:()=>showInfo('Due Payments','Outstanding demo balances: ₹2,450 across 3 accounts. Add a backend query to show real due invoices.'),
- cashflow:()=>showInfo('Cash Flow','Today (demo): Cash ₹9,420 · Card ₹7,180 · UPI ₹8,960. Total collections ₹25,560.'),
- expenses:()=>openConfig('Expense Tracker',`<label class="formfield">Expense description<input id="expenseName" placeholder="e.g. vegetables purchase"></label><label class="formfield" style="margin-top:12px">Amount (₹)<input id="expenseAmount" type="number" min="0" placeholder="0.00"></label>`,()=>{const n=document.getElementById('expenseName').value,a=Number(document.getElementById('expenseAmount').value);if(!n||a<=0){toast('Enter expense and amount');return}closeModal();toast('Demo expense added: '+n+' · ₹'+a)}),
- drawer:()=>showInfo('Drawer Reconciliation','Demo drawer: Opening ₹5,000 · Cash sales ₹9,420 · Paid out ₹1,250 · Expected closing ₹13,170.'),
- currency:()=>showInfo('Currency','Currency is set to INR (₹), with two decimal places for calculations.'),
- discounts:()=>showInfo('Discounts & Coupons','Demo offers: WELCOME10, LUNCH50, FLAT100 and STAFF15. Configure eligibility and limits before production use.'),
- dispatch:()=>showInfo('Delivery Dispatch','Demo dispatch board: 3 delivery partners available; 2 trips active. Real-time GPS/dispatch requires delivery app integration.')
+function renderSettings(){Object.entries({billing:"settings-billing",online:"settings-online",system:"settings-system"}).forEach(([group,id])=>{$("#"+id).innerHTML=settingData[group].map(([name,desc,icon,key])=>`<button class="settings-card" data-setting="${escapeHTML(name)}" data-setting-key="${key}"><span class="settings-icon"><i class="fa-solid ${icon}"></i></span><span class="settings-copy"><strong>${escapeHTML(name)}</strong><small>${escapeHTML(desc)}</small></span><i class="fa-solid fa-arrow-right settings-arrow"></i></button>`).join("")})}
+function openSettings(name,key){
+ const box=$("#settings-detail");const config={
+ display:[["Show item images","toggle","yes"],["Show item codes","toggle","no"],["Show stock status","toggle","yes"],["Show category tabs","toggle","yes"],["Enable search suggestions","toggle","yes"],["Show tax breakdown","toggle","yes"],["Show discount section","toggle","yes"],["Enable special notes","toggle","yes"],["Show customer details","toggle","yes"],["Show table selection","toggle","yes"]],
+ calculations:[["CGST rate (%)","number","2.5"],["SGST rate (%)","number","2.5"],["Service charge (%)","number","0"],["Rounding rule","select","Nearest rupee"]],
+ linked:[["QR menu sync","toggle","yes"],["Aggregator integration","toggle","no"],["Customer display","toggle","no"]],
+ print:[["Receipt printer","select","80mm Thermal Printer"],["KOT printer","select","80mm Thermal Printer"],["Auto print bill","toggle","yes"],["Auto print KOT","toggle","yes"],["Print item modifiers/notes","toggle","yes"],["Print QR code on receipt","toggle","no"],["Print logo on receipt","toggle","no"]],
+ customer:[["Require 10-digit mobile","toggle","no"],["Allow customer dues","toggle","yes"],["Ask customer name","toggle","no"]],
+ online:[["Enable online orders","toggle","yes"],["Auto accept orders","toggle","no"],["Preparation time (minutes)","number","30"],["Outlet opening time","time","10:00"],["Outlet closing time","time","23:00"],["Enable Zomato sync","toggle","no"],["Enable Swiggy sync","toggle","no"]],
+ advance:[["Allow advance orders","toggle","yes"],["Minimum advance time (minutes)","number","30"],["Maximum booking days","number","7"]],
+ "online-system":[["Auto refresh online queue","toggle","yes"],["Poll interval (seconds)","number","15"],["Play new order alert","toggle","yes"]],
+ "billing-system":[["Station name","text","Master Billing Station"],["Sync interval (seconds)","number","30"],["Offline queue enabled","toggle","yes"]],
+ connect:[["Device role","select","Captain"],["Pairing code","text","FM-482-106"],["Connection mode","select","Local network"]]
  };
- (map[action]||(()=>showInfo('Demo module',`The ${action} module is a UI demo. Connect a backend endpoint to make this action persistent.`)))()
+ const fields=config[key]||[["Enabled","toggle","yes"],["Configuration value","text",""]];
+ box.hidden=false;box.innerHTML=`<div style="display:flex;justify-content:space-between;gap:12px;align-items:start;flex-wrap:wrap"><div><h3>${escapeHTML(name)}</h3><p>Prototype settings are kept in this browser session only; no server is connected.</p></div><span class="badge">DEMO CONFIG</span></div><div class="settings-form">${fields.map(([label,type,value],i)=>{const id="setting-"+key+"-"+i;if(type==="toggle")return `<label style="display:flex;align-items:center;justify-content:space-between;gap:12px">${escapeHTML(label)}<input id="${id}" type="checkbox" class="toggle" ${value==="yes"?"checked":""}></label>`;if(type==="select"){const opts=label.toLowerCase().includes("printer")?["80mm Thermal Printer","58mm Thermal Printer","Browser Print"]:label==="Rounding rule"?["Nearest rupee","No rounding","Round up","Round down"]:label==="Device role"?["Captain","Secondary POS","Cashier"]:["Local network","Cloud pairing"];return `<label>${escapeHTML(label)}<select id="${id}">${opts.map(o=>`<option ${o===value?"selected":""}>${escapeHTML(o)}</option>`).join("")}</select></label>`}return `<label>${escapeHTML(label)}<input id="${id}" type="${type}" value="${escapeHTML(value)}"></label>`}).join("")}</div><div style="display:flex;gap:8px;margin-top:15px"><button class="btn primary" data-action="save-settings" data-setting-name="${escapeHTML(name)}">Save Settings</button>${key==="connect"?'<button class="btn" data-action="pair-device">Generate Pairing QR</button>':""}</div>`;
+ box.scrollIntoView({behavior:"smooth",block:"start"});
 }
-function renderTickets(){
- document.getElementById('liveFilters').innerHTML=filters.map(f=>`<button class="filter ${state.liveFilter===f?'active':''}" onclick="setLiveFilter('${f}')">${f}</button>`).join('');
- const list=state.orders.filter(o=>state.liveFilter==='All'||o.source===state.liveFilter||(state.liveFilter==='Delivery'&&o.source==='Delivery'));
- document.getElementById('tickets').innerHTML=list.map(o=>`<article class="ticket ${o.status==='Ready'?'ready':''}"><div class="tickethead"><div><strong>${esc(o.id)}</strong><div style="font-size:10px;color:#8fa6af;margin-top:4px">${esc(o.kot)} · ${esc(o.source)}${o.table?' · '+esc(o.table):''}</div></div><span class="timer"><i class="fa-regular fa-clock"></i> ${o.elapsed} min</span></div><div class="ticketitems">${o.items.map(i=>`<div class="ticketitem"><span>${esc(i[0])}</span><strong>× ${i[1]}</strong></div>`).join('')}</div><div class="ticketnote"><i class="fa-regular fa-note-sticky" style="color:#6ee7b7"></i> ${esc(o.note||'No customer note')}</div><div class="ticketfoot"><span style="color:#8fa6af">Total bill</span><strong>₹${o.total.toLocaleString('en-IN')}</strong><span class="tinybadge">${esc(o.status)}</span></div><div class="ticketactions">${o.status!=='Ready'?`<button class="btn primary" onclick="markReady('${o.id}')">Mark Food Ready</button>`:`<button class="btn primary" onclick="dispatchOrder('${o.id}')">Dispatch</button>`}<button class="btn" onclick="printSlip('${o.id}')">Print Slip</button></div></article>`).join('')||'<div class="empty">No orders match this filter.</div>';
- document.getElementById('pendingKots').textContent=String(state.orders.filter(o=>o.status!=='Ready').length).padStart(2,'0')
+function openModal(title,body,onSave){
+ $("#modal-title").textContent=title;$("#modal-body").innerHTML=body;state.modal.save=onSave||null;$("#modal-backdrop").classList.add("open");$("#modal-save").style.display=onSave?"inline-flex":"none";
 }
-function setLiveFilter(f){state.liveFilter=f;renderTickets()}
-function markReady(id){const o=state.orders.find(x=>x.id===id);if(o)o.status='Ready';renderTickets();toast(id+' marked food ready')}
-function dispatchOrder(id){state.orders=state.orders.filter(o=>o.id!==id);renderTickets();toast(id+' dispatched')}
-function printSlip(id){const o=state.orders.find(x=>x.id===id);if(o)showInfo('Print Slip',`<div class="border border-slate-700 rounded-lg p-4"><h4 style="font-weight:800">FreeMenu Kitchen Slip</h4><p style="color:#91a8b1">${esc(o.id)} · ${esc(o.kot)} · ${esc(o.source)}</p>${o.items.map(i=>`<div style="display:flex;justify-content:space-between;margin-top:9px">${esc(i[0])}<strong>× ${i[1]}</strong></div>`).join('')}<p style="margin-top:12px;color:#a7f3d0">Note: ${esc(o.note)}</p></div><button class="btn primary" style="margin-top:12px" onclick="window.print()">Print dialog</button>`)}
-function addDemoOrder(){const id='FM-'+(2411+state.orders.length);state.orders.unshift({id,kot:'KOT-'+String(75+state.orders.length).padStart(3,'0'),source:'Dine-in',table:'T02',elapsed:1,items:[['Paneer Tikka',1],['Masala Chaas',1]],note:'Fresh demo order',total:308,status:'New'});renderTickets();document.getElementById('todayOrders').textContent=Number(document.getElementById('todayOrders').textContent)+1;toast('Demo order added')}
-function renderReports(){document.getElementById('reportCards').innerHTML=state.reports.map((r,i)=>`<button class="reportcard" onclick="openReport(${i})"><div class="tileicon ${r.tone}"><i class="fa-solid ${r.icon}"></i></div><h4>${esc(r.title)}</h4><p>${esc(r.desc)}</p><div class="open"><span>${esc(r.value)}</span><span>View report <i class="fa-solid fa-arrow-right"></i></span></div></button>`).join('')}
-function openReport(i){const r=state.reports[i];showInfo(r.title,`<div class="grid gap-3"><div class="p-4 rounded-xl border border-emerald-900 bg-emerald-950/30"><div class="text-slate-600 text-xs">${esc(r.title)} · Today</div><div class="text-2xl font-bold text-emerald-300 mt-1">${esc(r.value)}</div></div><div class="text-slate-700 text-sm">${esc(r.desc)}</div><div class="border border-slate-700 rounded-lg p-3 text-xs text-slate-600">Demo report data only. Connect reporting queries for live outlet results.</div><button class="btn primary" onclick="exportReport()">Export CSV</button></div>`)}
-function exportReport(){const rows=[['Report','Value'],...state.reports.map(r=>[r.title,r.value])];const csv=rows.map(r=>r.map(v=>'"'+String(v).replace(/"/g,'""')+'"').join(',')).join('\n');const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'}));a.download='freemenu-report-demo.csv';a.click();URL.revokeObjectURL(a.href);toast('Demo report exported')}
-function openItemModal(){const names=Object.keys(state.itemAvailability);openConfig('Item On / Off',`<p style="font-size:11px;color:#91a8b1;margin:0 0 12px">Quickly control item availability in the mock menu.</p><div class="grid gap-2">${names.map(n=>`<div style="display:flex;justify-content:space-between;align-items:center;border:1px solid #263f48;padding:10px;border-radius:9px"><span>${esc(n)}</span><button class="switch ${state.itemAvailability[n]?'on':''}" aria-label="Toggle ${esc(n)}" onclick="state.itemAvailability['${esc(n)}']=!state.itemAvailability['${esc(n)}'];openItemModal()"></button></div>`).join('')}</div>`,null)}
-function toggleStore(){state.storeOpen=!state.storeOpen;document.getElementById('storeStatusText').textContent=state.storeOpen?'Store Open':'Store Paused';document.getElementById('storeSwitch').classList.toggle('on',state.storeOpen);toast(state.storeOpen?'Store marked open in demo':'Store paused in demo')}
-function toggleSync(btn,name){btn.classList.toggle('on');toast(name+' sync '+(btn.classList.contains('on')?'enabled':'paused')+' in demo')}
-function openAlerts(){document.getElementById('alertCount').textContent='0';showInfo('Notifications','<div class="grid gap-3"><div class="p-3 rounded-lg border border-slate-700"> <span class="text-emerald-300">●</span> 2 online orders awaiting acceptance</div><div class="p-3 rounded-lg border border-slate-700"><span class="text-amber-300">●</span> KOT-072 is over 10 minutes old</div><div class="p-3 rounded-lg border border-slate-700"><span class="text-sky-300">●</span> Cloud sync connection is healthy</div></div>')}
-function openHelp(){showInfo('FreeMenu POS Support','<div class="grid gap-3"><p class="text-slate-700">How can we help with your outlet?</p><div class="p-3 rounded-lg border border-slate-700">Billing and KOT workflows</div><div class="p-3 rounded-lg border border-slate-700">Printer setup and receipt layout</div><div class="p-3 rounded-lg border border-slate-700">Online order sync troubleshooting</div><p class="text-xs text-slate-500">Demo support panel — add your real support contact details before deployment.</p></div>')}
-function logoutDemo(){showInfo('Logout','This standalone mockup does not have authentication connected. Add your Supabase sign-out action here.')}
-function saveSettings(){toast('Settings saved for this demo session')}
-function openConfig(title,body,onSave){openModal(title,body+(onSave?`<div style="display:flex;justify-content:flex-end;margin-top:18px"><button class="btn primary" onclick="(${onSave.toString()})()">Save changes</button></div>`:''))}
-function showInfo(title,body){openModal(title,body)}
-function openModal(title,body){document.getElementById('modalTitle').textContent=title;document.getElementById('modalBody').innerHTML=body;document.getElementById('modalBack').classList.add('show')}
-function closeModal(){document.getElementById('modalBack').classList.remove('show')}
-function backdropClose(e){if(e.target.id==='modalBack')closeModal()}
-function toast(message){const el=document.getElementById('toast');el.textContent=message;el.style.display='block';clearTimeout(window.__toastTimer);window.__toastTimer=setTimeout(()=>el.style.display='none',2600)}
-document.addEventListener('keydown',e=>{if(e.key==='Escape')closeModal();if(e.altKey&&e.key==='1')navigate('billing');if(e.altKey&&e.key==='2')navigate('operations');if(e.altKey&&e.key==='3')navigate('reports');if(e.altKey&&e.key==='4')navigate('live')});
-renderTiles();renderIntegrations();renderReports();renderTickets();
-</script>
-<script>
-
-// Billing counter demo state; replace these mock arrays with Supabase/API calls later.
-const posMenu = [
- {id:1,name:'Paneer Butter Masala',category:'Main Course',price:260,veg:true,stock:true},
- {id:2,name:'Dal Makhani',category:'Main Course',price:220,veg:true,stock:true},
- {id:3,name:'Shahi Paneer',category:'Main Course',price:250,veg:true,stock:true},
- {id:4,name:'Tandoori Roti',category:'Breads',price:20,veg:true,stock:true},
- {id:5,name:'Butter Naan',category:'Breads',price:45,veg:true,stock:true},
- {id:6,name:'Veg Spring Roll',category:'Starters',price:150,veg:true,stock:true},
- {id:7,name:'Chicken Tikka',category:'Starters',price:240,veg:false,stock:true},
- {id:8,name:'Masala Soda',category:'Drinks',price:60,veg:true,stock:true}
-];
-let posCart = [];
-let posCategory = 'All';
-let posOrderMode = 'Pickup';
-let posKots = [];
-const inr = n => '₹' + Number(n||0).toFixed(2);
-function renderPosProducts(){
- const q=(document.getElementById('menu-search')?.value||'').toLowerCase();
- const root=document.getElementById('billing-products'); if(!root)return;
- root.innerHTML=posMenu.filter(x=>x.stock&&(posCategory==='All'||x.category===posCategory)&&x.name.toLowerCase().includes(q))
- .map(x=>`<button class="product-card" data-product="${x.id}"><strong><span class="product-dot"></span>${x.name}</strong><span>${x.category} · ${inr(x.price)}</span></button>`).join('')||'<div class="empty-cart">No menu items match your search.</div>';
-}
-function renderPosCart(){
- const body=document.getElementById('cart-body'); if(!body)return;
- body.innerHTML=posCart.map(x=>`<tr><td><b>${x.name}</b></td><td><input class="billing-input pos-note" data-id="${x.id}" placeholder="e.g. less oil" value="${escapeHtml(x.note||'')}" style="width:130px"></td><td><button class="pos-pill" data-dec="${x.id}">−</button> ${x.qty} <button class="pos-pill" data-inc="${x.id}">+</button></td><td>${inr(x.price)}</td><td>${inr(x.price*x.qty)}</td><td><button class="pos-pill" data-remove="${x.id}">×</button></td></tr>`).join('')||'<tr><td colspan="6" class="empty-cart">Choose menu items to start the bill.</td></tr>';
- const qty=posCart.reduce((s,x)=>s+x.qty,0),sub=posCart.reduce((s,x)=>s+x.price*x.qty,0);
- const discVal=Math.max(0,Number(document.getElementById('discount-value')?.value||0));
- const discount=document.getElementById('discount-type')?.value==='flat'?Math.min(sub,discVal):Math.min(sub,sub*discVal/100);
- const taxable=Math.max(0,sub-discount),cgst=taxable*.025,sgst=taxable*.025,total=taxable+cgst+sgst;
- document.getElementById('cart-qty').textContent=qty;
- document.getElementById('cart-subtotal').textContent=inr(sub);
- document.getElementById('cart-cgst').textContent=inr(cgst);
- document.getElementById('cart-sgst').textContent=inr(sgst);
- document.getElementById('cart-total').textContent=inr(total);
-}
-function escapeHtml(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
-function addPosItem(id){const item=posMenu.find(x=>x.id===Number(id));if(!item||!item.stock)return;const found=posCart.find(x=>x.id===item.id);if(found)found.qty++;else posCart.push({...item,qty:1,note:''});renderPosCart();}
-function makePosReceipt(){
- const total=document.getElementById('cart-total').textContent;
- document.getElementById('receipt-print').innerHTML=`<div style="font:12px monospace;padding:4mm;width:72mm;color:#000"><center><h2>FreeMenu POS</h2><p>Restaurant Billing Receipt</p></center><hr>${posCart.map(x=>`<div>${escapeHtml(x.name)} × ${x.qty}<span style="float:right">${inr(x.price*x.qty)}</span></div>${x.note?`<small>Note: ${escapeHtml(x.note)}</small>`:''}`).join('')}<hr><div>Total: <b style="float:right">${total}</b></div><p>Payment: ${escapeHtml(document.getElementById('payment-mode').value)}</p><center>Thank you!</center></div>`;
- document.getElementById('receipt-print').style.display='block';
-}
-document.addEventListener('click',e=>{
- const product=e.target.closest('[data-product]');if(product){addPosItem(product.dataset.product);return;}
- const inc=e.target.closest('[data-inc]');if(inc){const x=posCart.find(x=>x.id===Number(inc.dataset.inc));if(x)x.qty++;renderPosCart();return;}
- const dec=e.target.closest('[data-dec]');if(dec){const x=posCart.find(x=>x.id===Number(dec.dataset.dec));if(x)x.qty=Math.max(1,x.qty-1);renderPosCart();return;}
- const rem=e.target.closest('[data-remove]');if(rem){posCart=posCart.filter(x=>x.id!==Number(rem.dataset.remove));renderPosCart();return;}
- const cat=e.target.closest('[data-category]');if(cat){posCategory=cat.dataset.category;document.querySelectorAll('[data-category]').forEach(b=>b.classList.toggle('active',b===cat));renderPosProducts();return;}
- const mode=e.target.closest('[data-mode]');if(mode){posOrderMode=mode.dataset.mode;document.querySelectorAll('[data-mode]').forEach(b=>b.classList.toggle('active',b===mode));document.querySelectorAll('[name="order-mode"]').forEach(r=>r.checked=r.value===posOrderMode);return;}
- if(e.target.closest('#send-kot')){if(!posCart.length){alert('Add items before sending to KOT.');return;}posKots.push({id:Date.now(),items:posCart.map(x=>({...x})),mode:posOrderMode,notes:document.getElementById('order-notes').value});alert('KOT sent to demo queue. Running cart is preserved.');return;}
- if(e.target.closest('#hold-order')){alert('Order held in this browser demo.');return;}
- if(e.target.closest('#reset-order')){if(confirm('Clear current cart?')){posCart=[];renderPosCart();}return;}
- if(e.target.closest('#save-print')){if(!posCart.length){alert('Add items before saving bill.');return;}makePosReceipt();window.print();return;}
- if(e.target.closest('#receipt-open')){if(!posCart.length){alert('Add items to preview a receipt.');return;}makePosReceipt();const w=window.open('','_blank','width=380,height=700');if(w){w.document.write('<html><head><title>Receipt Preview</title></head><body>'+document.getElementById('receipt-print').innerHTML+'</body></html>');w.document.close();}return;}
- if(e.target.closest('#kot-open')){alert(posKots.length?`KOT Queue: ${posKots.length} ticket(s) in demo queue.`:'KOT queue is empty.');return;}
- if(e.target.closest('#item-onoff')){const name=prompt('Enter exact menu item to toggle on/off:');if(name){const item=posMenu.find(x=>x.name.toLowerCase()===name.toLowerCase());if(item){item.stock=!item.stock;renderPosProducts();alert(`${item.name} is now ${item.stock?'ON':'OFF'}.`);}else alert('Item not found in demo menu.');}return;}
- if(e.target.closest('#store-status')){const b=document.getElementById('store-status');const online=b.dataset.online!=='false';b.dataset.online=String(!online);b.textContent=online?'● Store Offline':'● Store Online';b.classList.toggle('active',!online);return;}
- if(e.target.closest('#new-order')){posCart=[];renderPosCart();document.getElementById('customer-mobile').value='';document.getElementById('customer-name').value='';document.getElementById('order-notes').value='';return;}
+function closeModal(){$("#modal-backdrop").classList.remove("open");state.modal.save=null}
+function openItemModal(){openModal("Menu Item On/Off",`<p class="tiny muted" style="margin-top:0">Toggle availability. Unavailable items disappear from the billing menu.</p><div style="display:flex;flex-direction:column;gap:10px">${menu.map(m=>`<label style="display:flex;align-items:center;justify-content:space-between;gap:10px;border:1px solid var(--line);border-radius:9px;padding:10px"><span><strong>${escapeHTML(m.name)}</strong><small class="muted" style="display:block;margin-top:4px">${rupees(m.price)} · ${escapeHTML(m.category)}</small></span><input type="checkbox" class="toggle item-stock-toggle" data-stock="${m.id}" ${m.stock?"checked":""} aria-label="${escapeHTML(m.name)} available"></label>`).join("")}</div>`,()=>{$$(".item-stock-toggle").forEach(el=>{const m=menu.find(x=>x.id===Number(el.dataset.stock));if(m)m.stock=el.checked});renderMenu();toast("Menu availability updated in demo.")})}
+function openReport(name){const inv=state.invoices;let body=`<p>${escapeHTML(name)} — demo report</p><div class="stat-grid" style="grid-template-columns:repeat(2,minmax(0,1fr))"><div class="stat"><div class="label">Invoices in session</div><div class="value">${inv.length}</div></div><div class="stat"><div class="label">Session sales</div><div class="value" style="font-size:18px">${rupees(inv.reduce((s,x)=>s+x.total,0))}</div></div></div><p class="tiny muted">Pre-populated dashboard figures are illustrative. Only invoices created during this browser session are actual demo records.</p>`;openModal(name,body)}
+function exportCSV(){const rows=[["Invoice","Time","Mode","Payment","Items","Subtotal","Discount","CGST","SGST","Total"],...state.invoices.map(i=>[i.id,i.time,i.mode,i.payment,i.items,i.subtotal.toFixed(2),i.discount.toFixed(2),i.cgst.toFixed(2),i.sgst.toFixed(2),i.total.toFixed(2)])];const csv=rows.map(r=>r.map(v=>`"${String(v).replace(/"/g,'""')}"`).join(",")).join("\r\n");const blob=new Blob([csv],{type:"text/csv;charset=utf-8;"});const url=URL.createObjectURL(blob);const a=document.createElement("a");a.href=url;a.download="freemenu-pos-invoices.csv";a.click();URL.revokeObjectURL(url);toast("Invoice CSV exported.")}
+function targetAction(target){if(!target)return;if(target==="billing"||target==="live"||target==="reports"||target==="settings"){navigate(target);return}if(target==="item-onoff"){openItemModal();return}if(target==="help"){openModal("FreeMenu POS Help",'<p>Use Billing to create a demo order, Send to KOT to add a kitchen ticket, and Live View to move it through preparation.</p><p class="tiny muted">No live support service is connected in this standalone prototype.</p>');return}if(target==="sync"){toast("Demo sync checked. No backend is connected.");return}if(target.startsWith("setting:")){navigate("settings");const name=target.slice(8);const pair=Object.values(settingData).flat().find(x=>x[0]===name);openSettings(name,pair?pair[3]:"display");return}if(target.startsWith("report:")){openReport(target.slice(7));return}openReport(target)}
+document.addEventListener("click",e=>{
+ const searchSetting=e.target.closest("[data-search-setting]");if(searchSetting){closeModal();navigate("settings");openSettings(searchSetting.dataset.searchSetting,searchSetting.dataset.searchKey);return}
+ const nav=e.target.closest("[data-view]");if(nav){navigate(nav.dataset.view);return}
+ const target=e.target.closest("[data-target]");if(target){targetAction(target.dataset.target);return}
+ const action=e.target.closest("[data-action]");if(action){const a=action.dataset.action;
+  if(a==="menu")$("#sidebar").classList.toggle("open");
+  else if(a==="check-updates")toast("You are using prototype version 1.0.0.");
+  else if(a==="logout")openModal("Logout",'<p>This standalone prototype has no signed-in session to end.</p>');
+  else if(a==="store-status"){state.storeOpen=!state.storeOpen;$("#store-label").textContent=state.storeOpen?"Store Open":"Store Closed";toast(state.storeOpen?"Store marked open in demo.":"Store marked closed in demo.");}
+  else if(a==="new-order"){if(state.cart.length&&!confirm("Start a new order and clear current cart?"))return;state.cart=[];$("#order-note").value="";$("#customer-name").value="";$("#customer-mobile").value="";renderCart();toast("New order started.");}
+  else if(a==="send-kot")sendKOT();
+  else if(a==="save-bill")saveBill();
+  else if(a==="hold-order"){if(!state.cart.length){toast("Cart is empty.");return}state.held.push({cart:state.cart.map(x=>({...x})),mode:state.mode,at:Date.now()});state.cart=[];renderCart();toast("Order held in this browser session.");}
+  else if(a==="reset-cart"){if(state.cart.length&&!confirm("Clear current order?"))return;state.cart=[];renderCart();toast("Cart reset.");}
+  else if(a==="refresh-live"){renderTickets();toast("Ticket list refreshed.");}
+  else if(a==="export-report")exportCSV();
+  else if(a==="settings-search"){openModal("Search Settings",'<label class="field-label">Search setting<input class="field" id="setting-search-input" placeholder="Try printer, GST, online order…"></label><div id="setting-search-results" style="margin-top:12px"></div>');}
+  else if(a==="close-modal")closeModal();
+  else if(a==="save-settings"){toast("Settings saved in demo session: "+action.dataset.settingName);return}
+  else if(a==="pair-device"){openModal("Pairing QR",'<div style="text-align:center;padding:15px"><div style="width:150px;height:150px;margin:auto;display:grid;place-items:center;border:8px solid #ecfdf5;border-radius:14px;color:#047857;font-size:72px"><i class="fa-solid fa-qrcode"></i></div><p>Demo pairing code: <strong>FM-482-106</strong></p><p class="tiny muted">This is a visual placeholder, not a scannable connection QR.</p></div>');}
+  return;
+ }
+ const mode=e.target.closest("[data-mode]");if(mode){state.mode=mode.dataset.mode;$$("[data-mode]").forEach(b=>b.classList.toggle("active",b===mode));if(state.mode!=="Dine-in")$("#table-select").value="Counter";renderCart();return}
+ const cat=e.target.closest("[data-category]");if(cat){state.category=cat.dataset.category;renderMenu();return}
+ const add=e.target.closest("[data-add]");if(add){addItem(add.dataset.add);return}
+ const qty=e.target.closest("[data-qty]");if(qty){const x=state.cart.find(i=>i.id===Number(qty.dataset.qty));if(x){x.qty+=Number(qty.dataset.delta);if(x.qty<=0)state.cart=state.cart.filter(i=>i.id!==x.id);renderCart()}return}
+ const remove=e.target.closest("[data-remove]");if(remove){state.cart=state.cart.filter(x=>x.id!==Number(remove.dataset.remove));renderCart();return}
+ const pay=e.target.closest("[data-pay]");if(pay){state.payment=pay.dataset.pay;$$("[data-pay]").forEach(b=>b.classList.toggle("active",b===pay));return}
+ const filter=e.target.closest("[data-filter]");if(filter){state.liveFilter=filter.dataset.filter;$$("[data-filter]").forEach(b=>b.classList.toggle("active",b===filter));renderTickets();return}
+ const ticket=e.target.closest("[data-ticket-action]");if(ticket){const t=state.tickets.find(x=>x.id===ticket.dataset.ticket);if(!t)return;if(ticket.dataset.ticketAction==="ready"){t.status="Ready";toast(t.id+" marked food ready.")}else if(ticket.dataset.ticketAction==="dispatch"){t.status="Dispatched";toast(t.id+" dispatched.")}else if(ticket.dataset.ticketAction==="print"){openModal("KOT Print Preview",`<div style="font-family:monospace"><h3>${escapeHTML(t.id)}</h3><p>${escapeHTML(t.mode)} · ${escapeHTML(t.table)}</p>${t.items.map(i=>`<p>${i.qty} × ${escapeHTML(i.name)}</p>`).join("")}<hr><p>${escapeHTML(t.note)}</p></div>`,()=>window.print())}else openModal(t.id,`<p>Status: ${escapeHTML(t.status)}</p><p>${escapeHTML(t.note)}</p>`);renderTickets();return}
+ const setting=e.target.closest("[data-setting-key]");if(setting){openSettings(setting.dataset.setting,setting.dataset.settingKey);return}
+ const report=e.target.closest("[data-report]");if(report){openReport(report.dataset.report);return}
+ const save=e.target.closest("[data-save-settings]");if(save){toast("Settings saved in demo session: "+save.dataset.settingName);return}
 });
-document.addEventListener('input',e=>{
- if(e.target.id==='menu-search')renderPosProducts();
- if(e.target.id==='discount-value')renderPosCart();
- if(e.target.classList.contains('pos-note')){const x=posCart.find(x=>x.id===Number(e.target.dataset.id));if(x)x.note=e.target.value;}
-});
-document.addEventListener('change',e=>{if(e.target.id==='discount-type')renderPosCart();});
-document.querySelectorAll('[name="order-mode"]').forEach(r=>r.addEventListener('change',()=>{posOrderMode=r.value;document.querySelectorAll('[data-mode]').forEach(b=>b.classList.toggle('active',b.dataset.mode===posOrderMode));}));
-renderPosProducts();renderPosCart();
-
+document.addEventListener("input",e=>{if(e.target.id==="menu-search")renderMenu();if(e.target.id==="discount-value"){renderCart()}if(e.target.matches("[data-note]")){const item=state.cart.find(x=>x.id===Number(e.target.dataset.note));if(item)item.note=e.target.value}if(e.target.id==="setting-search-input"){const q=e.target.value.toLowerCase();const results=Object.values(settingData).flat().filter(x=>(x[0]+" "+x[1]).toLowerCase().includes(q));$("#setting-search-results").innerHTML=results.map(x=>`<button class="settings-card" style="width:100%;margin:6px 0" data-search-setting="${escapeHTML(x[0])}" data-search-key="${x[3]}"><span class="settings-copy"><strong>${escapeHTML(x[0])}</strong><small>${escapeHTML(x[1])}</small></span><i class="fa-solid fa-arrow-right settings-arrow"></i></button>`).join("")||'<p class="tiny muted">No matching settings.</p>'}});
+document.addEventListener("change",e=>{if(["discount-type","tax-rate"].includes(e.target.id))renderCart();if(e.target.id==="table-select")renderCart();if(e.target.matches("[data-search-setting]")){openSettings(e.target.dataset.searchSetting,e.target.dataset.searchKey)}});
+$("#modal-save").addEventListener("click",()=>{if(state.modal.save)state.modal.save();closeModal()});
+$("#modal-backdrop").addEventListener("click",e=>{if(e.target.id==="modal-backdrop")closeModal()});
+document.addEventListener("keydown",e=>{if(e.key==="Escape")closeModal();if(e.key==="F2"){e.preventDefault();navigate("billing");$("#menu-search").focus()}if(e.key==="F4"){e.preventDefault();sendKOT()}});
+$("#menu-search").addEventListener("input",renderMenu);
+renderOps();renderSettings();renderMenu();renderCart();renderTickets();renderReports();updateClock();setInterval(updateClock,30000);$("#report-date").value=new Date().toISOString().slice(0,10);
 </script>
-<script>
-(function(){
- const dateEl=document.getElementById('pos-date'), clockEl=document.getElementById('pos-clock');
- function updateClock(){const d=new Date();if(dateEl)dateEl.textContent=d.toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'});if(clockEl)clockEl.textContent=d.toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'});}
- updateClock();setInterval(updateClock,30000);
-})();
-</script><script>
-(function(){const dateEl=document.getElementById('pos-date'),clockEl=document.getElementById('pos-clock');function updateClock(){const d=new Date();if(dateEl)dateEl.textContent=d.toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'});if(clockEl)clockEl.textContent=d.toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'});}updateClock();setInterval(updateClock,30000);})();
-</script>
-<script>
-document.addEventListener('click',function(e){
- const save=e.target.closest('[data-save-setting]');
- if(save){save.textContent='Saved in demo';save.style.background='#047857';return;}
- const card=e.target.closest('.settings-card');
- if(!card)return;
- const box=document.getElementById('settings-detail');
- const title=card.dataset.setting||'Settings';
- const modal=card.dataset.modal||'setting';
- const details={
- 'Display':['Show order number','Show customer details','Show item stock indicators'],
- 'Calculations':['CGST rate (%)','SGST rate (%)','Service charge (%)','Rounding rule'],
- 'Linked Services':['Enable QR menu sync','Enable aggregator integrations','Enable customer display'],
- 'Print':['Bill printer width','KOT printer width','Auto print bill','Auto print KOT'],
- 'Customer':['Require 10-digit mobile','Allow customer dues','Ask customer name'],
- 'Online Order Configuration':['Auto accept online orders','Food-ready alert','Outlet opening time','Outlet closing time'],
- 'Advance Order Configuration':['Allow advance orders','Minimum advance time (minutes)','Maximum booking days'],
- 'Online Order System Configuration':['Poll interval (seconds)','Auto-refresh online queue','Play new-order alert'],
- 'Billing System':['Sync interval (seconds)','Station name','Offline queue enabled'],
- 'Connect Captain & Secondary POS':['Station pairing code','Device role','Connection mode']
- };
- const fields=details[title]||['Setting value','Enable option'];
- box.hidden=false;
- box.innerHTML='<h3>'+title+'</h3><p>Demo configuration panel. Values are local to this prototype until a backend is connected.</p><div class="settings-form">'+fields.map((f,i)=>'<label>'+f+(f.toLowerCase().includes('enable')||f.toLowerCase().includes('show')||f.toLowerCase().includes('allow')||f.toLowerCase().includes('auto')||f.toLowerCase().includes('require')||f.toLowerCase().includes('sync')||f.toLowerCase().includes('alert')||f.toLowerCase().includes('queue')?'<select><option>Enabled</option><option>Disabled</option></select>':'<input placeholder="Enter '+f.toLowerCase()+'" '+(f.toLowerCase().includes('rate')||f.toLowerCase().includes('interval')||f.toLowerCase().includes('minutes')||f.toLowerCase().includes('days')?'type="number" min="0"':'')+'/>')+'</label>').join('')+'</div><button class="save-setting" type="button" data-save-setting="1">Save Settings</button>';
- box.scrollIntoView({behavior:'smooth',block:'start'});
-});
-</script></body>
+</body>
 </html>
