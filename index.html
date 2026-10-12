@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>FreeMenu POS | Restaurant Management</title>
 <script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
 <style>
 :root{--green:#059669;--green2:#047857;--mint:#ecfdf5;--ink:#173327;--line:#dfe8e2;--muted:#718078}
@@ -35,6 +36,18 @@ main{min-width:0}.topbar{height:72px;background:#fff;border-bottom:1px solid var
 .bill-extra-fields{margin-top:14px;padding:14px;background:#f8fcf9;border:1px solid #dcebe1;border-radius:12px}
 .bill-extra-fields .customer-grid{margin-top:0!important;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
 @media(max-width:560px){.bill-extra-fields .customer-grid{grid-template-columns:1fr}}
+
+.menu-panel-head{gap:12px;flex-wrap:wrap}
+.menu-source-controls{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.compact-select{width:auto;min-width:190px;max-width:260px;padding:8px 10px}
+.menu-edit-btn{position:absolute;right:7px;top:7px;border:1px solid #bbf7d0;background:#fff;color:#047857;border-radius:7px;padding:5px 7px;font-size:11px;z-index:2}
+.menu-item{padding-top:34px}
+.menu-sync-status{font-size:11px;color:#64748b}
+.db-modal-form{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.db-modal-form .full{grid-column:1/-1}
+.db-modal-form label{display:flex;flex-direction:column;gap:6px;font-weight:600;font-size:12px}
+.db-modal-form input,.db-modal-form select,.db-modal-form textarea{border:1px solid #d6e3da;border-radius:9px;padding:10px;background:#fff;color:#173327;width:100%}
+@media(max-width:700px){.menu-source-controls{width:100%}.compact-select{flex:1;min-width:130px}.db-modal-form{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
@@ -79,7 +92,7 @@ main{min-width:0}.topbar{height:72px;background:#fff;border-bottom:1px solid var
   <div class="pagehead"><div><div class="eyebrow">COUNTER & TABLE ORDERING</div><h2>Generate Bill</h2><p>Create an order, send kitchen tickets and collect payment.</p></div><span class="badge"><span class="dot"></span> Billing ready</span></div>
   <div class="billing-layout">
    <section class="panel">
-    <div class="panel-head"><h3><i class="fa-solid fa-utensils" style="color:#059669;margin-right:7px"></i>Menu</h3><span class="tiny muted" id="menu-count">12 items</span></div>
+    <div class="panel-head menu-panel-head"><h3><i class="fa-solid fa-utensils" style="color:#059669;margin-right:7px"></i>Menu</h3><div class="menu-source-controls"><select id="supabase-restaurant" class="field compact-select" aria-label="Choose restaurant"><option value="">Loading restaurants…</option></select><button class="btn btn-light" id="supabase-refresh" type="button"><i class="fa-solid fa-rotate"></i> Sync</button><button class="btn btn-primary" id="supabase-add-item" type="button"><i class="fa-solid fa-plus"></i> Add Item</button><span class="tiny muted" id="menu-count">Loading menu…</span></div></div>
     <div class="panel-body">
      <div class="mode-row" id="order-modes"><button class="chip active" data-mode="Dine-in">Dine-in</button><button class="chip" data-mode="Takeaway">Takeaway / Counter</button><button class="chip" data-mode="Delivery">Delivery</button></div>
      <div class="customer-grid">
@@ -309,5 +322,157 @@ document.addEventListener("keydown",e=>{if(e.key==="Escape")closeModal();if(e.ke
 $("#menu-search").addEventListener("input",renderMenu);
 renderOps();renderSettings();renderMenu();renderCart();renderTickets();renderReports();updateClock();setInterval(updateClock,30000);$("#report-date").value=new Date().toISOString().slice(0,10);
 </script>
+
+<script>
+/* Supabase menu integration:
+   Reads the existing restaurants/menu_items tables. Edits only menu_items rows
+   belonging to the selected restaurant. Requires correct Supabase RLS policies. */
+(() => {
+ "use strict";
+ const FM_SUPABASE_URL = "https://pfsrpowopbrevocwsuii.supabase.co";
+ const FM_SUPABASE_PUBLISHABLE_KEY = "sb_publishable_r3K8YKzV0ZHQxvXfkNimkw_e5E8EPmE";
+ const db = window.supabase?.createClient(FM_SUPABASE_URL, FM_SUPABASE_PUBLISHABLE_KEY);
+ let outlets = [], liveMenu = [], selectedOutlet = "", editingItem = null;
+ const byId = id => document.getElementById(id);
+ const safe = v => String(v ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+ const notify = msg => typeof window.toast === "function" ? window.toast(msg) : alert(msg);
+ const getRestaurantName = r => r.name || r.restaurant_name || r.title || ("Restaurant " + String(r.id).slice(0,8));
+ const priceOf = m => Number(m.price ?? m.price_full ?? m.price_half ?? m.price_quarter ?? 0);
+ const categoryOf = m => m.category || m.cat || "Other";
+ const mapItem = m => ({...m, name:m.name || m.item_name || "Unnamed item", category:categoryOf(m), price:priceOf(m), veg: m.is_veg === true || m.veg === true, stock: m.is_available !== false && m.available !== false && m.is_active !== false && m.stock !== false, icon:"fa-bowl-food"});
+
+ async function loadRestaurants() {
+   if (!db) throw new Error("Supabase JS library load nahi hui. Internet connection check karein.");
+   const select = byId("supabase-restaurant");
+   select.innerHTML = '<option value="">Loading restaurants…</option>';
+   const {data,error} = await db.from("restaurants").select("*").order("name",{ascending:true});
+   if (error) throw error;
+   outlets = data || [];
+   if (!outlets.length) {
+     select.innerHTML = '<option value="">No restaurants found</option>';
+     throw new Error("Supabase restaurants table mein koi restaurant visible nahi hai. RLS policies check karein.");
+   }
+   select.innerHTML = outlets.map(r => `<option value="${safe(r.id)}">${safe(getRestaurantName(r))}</option>`).join("");
+   const remembered = localStorage.getItem("fm-pos-restaurant-id");
+   selectedOutlet = outlets.some(r => String(r.id)===remembered) ? remembered : String(outlets[0].id);
+   select.value = selectedOutlet;
+   await loadMenu();
+ }
+ async function loadMenu() {
+   selectedOutlet = byId("supabase-restaurant").value || selectedOutlet;
+   if (!selectedOutlet) return;
+   localStorage.setItem("fm-pos-restaurant-id", selectedOutlet);
+   byId("menu-count").textContent = "Loading…";
+   const {data,error} = await db.from("menu_items").select("*").eq("restaurant_id", selectedOutlet).order("name",{ascending:true});
+   if (error) throw error;
+   liveMenu = (data || []).map(mapItem);
+   renderMenu();
+   const outlet = outlets.find(r => String(r.id)===String(selectedOutlet));
+   const count = liveMenu.length;
+   byId("menu-count").textContent = `${count} database item${count===1?"":"s"}${outlet ? " · "+getRestaurantName(outlet):""}`;
+ }
+ function renderMenu() {
+   const categories = ["All", ...new Set(liveMenu.map(m=>m.category).filter(Boolean))];
+   const catHost = byId("categories");
+   if (catHost) catHost.innerHTML = categories.map(c=>`<button class="chip ${state.category===c?"active":""}" data-category="${safe(c)}">${safe(c)}</button>`).join("");
+   const search = (byId("menu-search")?.value || "").trim().toLowerCase();
+   const shown = liveMenu.filter(m => (state.category==="All" || m.category===state.category) && m.name.toLowerCase().includes(search) && m.stock);
+   const host = byId("menu-grid");
+   if (!host) return;
+   host.innerHTML = shown.map(m=>`<div class="menu-item" data-menu-card="${safe(m.id)}">
+     <button type="button" class="menu-edit-btn" data-db-edit="${safe(m.id)}" title="Edit this item"><i class="fa-solid fa-pen"></i> Edit</button>
+     <div class="food-thumb"><i class="fa-solid ${safe(m.icon)}"></i></div>
+     <span class="food-tag ${m.veg?"":"nonveg"}">${m.veg?"VEG":"NON-VEG"}</span>
+     <strong>${safe(m.name)}</strong><div class="price">${rupees(m.price)}</div>
+     <button type="button" class="add-plus" data-db-add="${safe(m.id)}" aria-label="Add ${safe(m.name)}"><i class="fa-solid fa-plus"></i></button>
+   </div>`).join("") || '<div class="empty" style="grid-column:1/-1">Is restaurant ke Supabase menu mein available items nahi mile. Restaurant select karein ya Menu section se item add karein.</div>';
+ }
+ function openItemEditor(item=null) {
+   editingItem = item;
+   const isEdit = !!item;
+   const body = `<form id="db-menu-form" class="db-modal-form">
+    <label class="full">Restaurant<select id="db-item-restaurant" required>${outlets.map(r=>`<option value="${safe(r.id)}" ${String(r.id)===String(item?.restaurant_id || selectedOutlet)?"selected":""}>${safe(getRestaurantName(r))}</option>`).join("")}</select></label>
+    <label>Item name<input id="db-item-name" required maxlength="120" value="${safe(item?.name||"")}"></label>
+    <label>Category<input id="db-item-category" required maxlength="80" value="${safe(categoryOf(item||{}))}"></label>
+    <label>Price (₹)<input id="db-item-price" type="number" min="0" step="0.01" required value="${safe(priceOf(item||{}))}"></label>
+    <label>Type<select id="db-item-veg"><option value="true" ${(item?.is_veg===true || item?.veg===true)?"selected":""}>Vegetarian</option><option value="false" ${(item && item.is_veg!==true && item.veg!==true)?"selected":""}>Non-vegetarian</option></select></label>
+    <label class="full">Description<textarea id="db-item-description" rows="2">${safe(item?.description||"")}</textarea></label>
+    <div class="full" style="display:flex;justify-content:flex-end;gap:8px"><button type="button" class="btn btn-light" data-db-cancel>Cancel</button><button type="submit" class="btn btn-primary">${isEdit?"Save Changes":"Create Item"}</button></div>
+   </form>`;
+   openModal(isEdit ? "Edit Supabase Menu Item" : "Add Menu Item", body);
+   byId("db-menu-form").addEventListener("submit", saveItem);
+ }
+ async function saveItem(e) {
+   e.preventDefault();
+   const id = editingItem?.id;
+   const restaurantId = byId("db-item-restaurant").value;
+   const payload = {
+     restaurant_id: restaurantId,
+     name: byId("db-item-name").value.trim(),
+     category: byId("db-item-category").value.trim(),
+     price: Number(byId("db-item-price").value),
+     is_veg: byId("db-item-veg").value === "true",
+     description: byId("db-item-description").value.trim()
+   };
+   if (!payload.name || !payload.category || !Number.isFinite(payload.price) || payload.price < 0) return notify("Name, category aur valid price enter karein.");
+   let result;
+   if (id) {
+     // Do not overwrite unrelated columns such as quarter/half/full prices.
+     const updatePayload = {...payload}; delete updatePayload.restaurant_id;
+     result = await db.from("menu_items").update(updatePayload).eq("id",id).eq("restaurant_id",editingItem.restaurant_id);
+   } else {
+     result = await db.from("menu_items").insert(payload);
+   }
+   if (result.error) {
+     console.error("Supabase menu save failed", result.error);
+     notify("Menu save nahi hua: " + result.error.message + ". RLS/schema policies check karein.");
+     return;
+   }
+   closeModal();
+   selectedOutlet = restaurantId;
+   byId("supabase-restaurant").value = restaurantId;
+   state.category = "All";
+   await loadMenu();
+   notify(id ? "Menu item Supabase mein update ho gaya." : "Menu item Supabase mein add ho gaya.");
+ }
+ function addDbItem(id) {
+   const m = liveMenu.find(x=>String(x.id)===String(id));
+   if (!m || !m.stock) return notify("Item available nahi hai.");
+   const found = state.cart.find(x=>String(x.id)===String(m.id));
+   if (found) found.qty++;
+   else state.cart.push({...m,qty:1,note:""});
+   renderCart();
+ }
+ document.addEventListener("click", async e=>{
+   const edit = e.target.closest("[data-db-edit]");
+   if (edit) { e.preventDefault(); e.stopPropagation(); const item=liveMenu.find(m=>String(m.id)===edit.dataset.dbEdit); if(item)openItemEditor(item); return; }
+   const add = e.target.closest("[data-db-add]");
+   if (add) { e.preventDefault(); e.stopPropagation(); addDbItem(add.dataset.dbAdd); return; }
+   if (e.target.closest("[data-db-cancel]")) { closeModal(); return; }
+   if (e.target.closest("#supabase-add-item")) { openItemEditor(); return; }
+   if (e.target.closest("#supabase-refresh")) { try { await loadMenu(); notify("Supabase menu refreshed."); } catch(err) { notify("Menu load error: "+err.message); } return; }
+ });
+ byId("supabase-restaurant").addEventListener("change", async e=>{
+   selectedOutlet=e.target.value; state.category="All";
+   try { await loadMenu(); } catch(err) { console.error(err); notify("Restaurant menu load error: "+err.message); }
+ });
+ // Menu search/category rerenders now read the selected restaurant's live database rows.
+ byId("menu-search").addEventListener("input", renderMenu);
+ document.addEventListener("click", e=>{
+   const chip=e.target.closest("[data-category]");
+   if (chip) { state.category=chip.dataset.category; renderMenu(); }
+ });
+ // Keep the regular cart renderer intact; add-item buttons now resolve against Supabase menu.
+ const originalNavigate = navigate;
+ window.navigate = function(view){ originalNavigate(view); if(view==="billing" && liveMenu.length)renderMenu(); };
+ loadRestaurants().catch(err=>{
+   console.error("Supabase initialization failed:",err);
+   byId("menu-count").textContent="Supabase unavailable";
+   const host=byId("menu-grid");
+   if(host)host.innerHTML=`<div class="empty" style="grid-column:1/-1">Supabase se menu load nahi hua: ${safe(err.message)}<br><small>Check internet, table permissions/RLS, and public SELECT policy. Demo menu ko live database samajhkar use nahi kiya jayega.</small></div>`;
+ });
+})();
+</script>
+
 </body>
 </html>
