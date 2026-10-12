@@ -59,6 +59,83 @@ body{background:#f4fbf6;color:#173b2a}
 .modalbody .text-slate-400,.modalbody .text-slate-500{color:#60776a}
 .modalbody .text-slate-300{color:#466653}
 @media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;transition:none!important;animation:none!important}}
+
+/* FreeMenu POS — white & emerald billing-counter skin */
+:root{
+ --bg:#f5faf6;--sidebar:#ffffff;--panel:#ffffff;--panel2:#f7fcf8;
+ --line:#dce8df;--muted:#617469;--green:#059669;--green2:#047857;
+ --ink:#172b20;--mint:#ecfdf5;--soft:#f0f7f2;--danger:#dc2626;
+}
+html,body{background:var(--bg)!important;color:var(--ink)!important}
+body{font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif}
+.sidebar{background:#fff!important;border-right:1px solid var(--line)!important}
+.topbar{background:#fff!important;border-bottom:1px solid var(--line)!important;color:var(--ink)!important}
+.brand h1,.pagehead h2,.sectionhead h3,.tile h4,.tickethead strong,.reportcard h4{color:var(--ink)!important}
+.brand p,.pagehead p,.sectionhead p,.tile p,.reportcard p,.metric span{color:var(--muted)!important}
+.navbtn{color:#52675a!important}
+.navbtn:hover,.navbtn.active{background:#ecfdf5!important;color:#047857!important;border-color:#a7f3d0!important}
+.utility,.btn,.filter{background:#fff!important;color:#244b35!important;border-color:#d6e5da!important}
+.utility:hover,.btn:hover,.filter:hover{background:#ecfdf5!important;border-color:#34d399!important}
+.btn.primary,.primary,.save-btn{background:#059669!important;color:#fff!important;border-color:#059669!important}
+.status,.brandbadge,.tinybadge{background:#ecfdf5!important;color:#047857!important;border-color:#a7f3d0!important}
+.hero{background:linear-gradient(110deg,#ffffff,#effcf4)!important;border-color:#cde7d5!important}
+.hero p{color:#52675a!important}
+.hero-stat{background:#fff!important;border-color:#d6e5da!important}
+.hero-stat span{color:#617469!important}
+.tile,.integration,.reportcard,.ticket{background:#fff!important;border-color:#dce8df!important;color:var(--ink)!important;box-shadow:0 1px 3px #143c2510}
+.tile:hover,.reportcard:hover{background:#f0fdf4!important;border-color:#34d399!important}
+.tileicon{background:#dcfce7!important;color:#047857!important;border-color:#bbf7d0!important}
+.tileicon.blue{background:#e0f2fe!important;color:#0369a1!important}
+.tileicon.amber{background:#fef3c7!important;color:#92400e!important}
+.tileicon.violet{background:#ede9fe!important;color:#6d28d9!important}
+.tileicon.rose{background:#ffe4e6!important;color:#be123c!important}
+.integration-foot,.ticketitems{border-color:#dce8df!important;color:#617469!important}
+.ticketnote{background:#f0fdf4!important;color:#365744!important}
+.modal{background:#fff!important;color:var(--ink)!important;border-color:#cfe2d5!important}
+.modalhead{border-color:#dce8df!important}
+.formfield{color:#52675a!important}
+.formfield input,.formfield select,.formfield textarea{background:#fff!important;color:var(--ink)!important;border-color:#cbded0!important}
+.page{color:var(--ink)!important}
+#billing-screen{background:#f5f7f5!important;color:#172b20!important}
+.billing-shell{display:grid;grid-template-columns:250px minmax(0,1fr);gap:0;min-height:calc(100vh - 80px);border:1px solid #dce8df;border-radius:12px;overflow:hidden;background:#fff}
+.billing-orders{background:#f7faf8;border-right:1px solid #dce8df;padding:12px}
+.billing-main{min-width:0;background:#fff}
+.billing-heading{height:58px;display:flex;align-items:center;justify-content:space-between;padding:0 20px;border-bottom:1px solid #e2e8e4}
+.billing-heading h2{font-size:21px;font-weight:650;margin:0;color:#172b20}
+.billing-toolbar{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.pos-pill{border:1px solid #d7e4da;border-radius:9px;background:#fff;color:#315341;padding:8px 11px;font-size:12px}
+.pos-pill.active{background:#059669;color:white;border-color:#059669}
+.billing-row{display:flex;align-items:center;gap:12px;flex-wrap:wrap;padding:12px 18px;border-bottom:1px solid #e5ebe7}
+.billing-row label{font-size:13px;font-weight:600;color:#355744}
+.billing-input{height:38px;border:1px solid #cfded3;border-radius:8px;padding:0 11px;background:#fff;color:#172b20;min-width:120px;outline:none}
+.billing-input:focus{border-color:#10b981;box-shadow:0 0 0 3px #10b98120}
+.billing-search{width:min(380px,100%)}
+.billing-table{width:100%;border-collapse:collapse;font-size:13px}
+.billing-table th{background:#059669;color:#fff;text-align:left;padding:12px 10px;font-weight:650}
+.billing-table td{padding:10px;border-bottom:1px solid #e7eee9;color:#243d2e}
+.billing-table tbody tr:hover{background:#f0fdf4}
+.billing-totalrow{display:flex;justify-content:flex-end;gap:0;border-top:1px solid #dce8df;background:#f8fbf9}
+.billing-totalrow>div{padding:12px 15px;border-left:1px solid #dce8df;font-size:13px}
+.billing-totalrow strong{color:#173b2a}
+.billing-bottom{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;padding:12px 15px;background:#f0f4f1;border-top:1px solid #dce8df}
+.billing-actions{display:flex;gap:8px;flex-wrap:wrap}
+.billing-action{border:1px solid #cbded0;background:#fff;color:#244b35;border-radius:8px;padding:10px 15px;font-size:13px;font-weight:600}
+.billing-action.primary{background:#059669;color:#fff;border-color:#059669}
+.order-mini{border:1px solid #d7e4da;background:#fff;border-radius:8px;padding:10px;margin:7px 0;cursor:pointer}
+.order-mini.active{border-color:#10b981;background:#ecfdf5}
+.order-mini strong{display:block;font-size:12px;color:#214c34}
+.order-mini span{font-size:11px;color:#617469}
+.billing-category{display:flex;gap:7px;flex-wrap:wrap}
+.billing-products{display:grid;grid-template-columns:repeat(auto-fill,minmax(145px,1fr));gap:9px;padding:12px 18px}
+.product-card{border:1px solid #dce8df;background:#fff;border-radius:10px;padding:12px;cursor:pointer;text-align:left;transition:.15s}
+.product-card:hover{border-color:#10b981;background:#f0fdf4;transform:translateY(-1px)}
+.product-card strong{display:block;font-size:13px;color:#1b3d29}
+.product-card span{display:block;font-size:12px;color:#047857;margin-top:7px}
+.product-dot{display:inline-block;width:7px;height:7px;border-radius:50%;background:#16a34a;margin-right:5px}
+.empty-cart{padding:38px 15px;text-align:center;color:#789083}
+@media(max-width:900px){.billing-shell{grid-template-columns:1fr}.billing-orders{border-right:0;border-bottom:1px solid #dce8df}.billing-orders .order-list{display:flex;gap:7px;overflow:auto}.order-mini{min-width:135px}}
+@media print{body *{visibility:hidden!important}#receipt-print,#receipt-print *{visibility:visible!important}#receipt-print{position:absolute;left:0;top:0;width:80mm;background:#fff;color:#000}}
+
 </style>
 </head>
 <body>
@@ -73,6 +150,62 @@ body{background:#f4fbf6;color:#173b2a}
   <div class="navbottom"><div><span class="online-dot"></span> Cloud Sync</div><div>v1.0.0</div><button class="btn" onclick="logoutDemo()"><i class="fa-solid fa-arrow-right-from-bracket"></i></button></div>
  </aside>
  <main class="main">
+
+<section id="billing-screen" class="page" style="display:block">
+ <div class="billing-shell">
+  <aside class="billing-orders">
+   <div class="billing-toolbar">
+    <button class="pos-pill active" data-mode="Pickup">Pick Up</button>
+    <button class="pos-pill" data-mode="Delivery">Delivery</button>
+    <button class="pos-pill" data-mode="Dine-in">Dine-in</button>
+   </div>
+   <div class="billing-row" style="padding:10px 0;border:0">
+    <input id="order-search" class="billing-input" placeholder="Search order / table" style="width:100%;min-width:0">
+   </div>
+   <div style="display:flex;justify-content:space-between;font-size:11px;color:#617469;padding:5px 2px"><b>ACTIVE ORDERS</b><span id="active-order-count">03</span></div>
+   <div class="order-list" id="order-list">
+    <div class="order-mini active" data-order="378854"><strong>Order #378854</strong><span>Pickup · ₹641.00</span></div>
+    <div class="order-mini" data-order="378853"><strong>Table 04 · #378853</strong><span>Dine-in · ₹546.00</span></div>
+    <div class="order-mini" data-order="378852"><strong>Order #378852</strong><span>Delivery · ₹420.00</span></div>
+   </div>
+   <button class="billing-action primary" id="new-order" style="width:100%;margin-top:8px">＋ New Order</button>
+   <div style="margin-top:18px;border-top:1px solid #dce8df;padding-top:12px;font-size:11px;color:#617469">CLOUD SYNC <b style="color:#059669;float:right">● Online</b></div>
+  </aside>
+  <div class="billing-main">
+   <div class="billing-heading"><h2>Generate Bill</h2><div class="billing-toolbar">
+    <button class="pos-pill" id="item-onoff">◉ Item On/Off</button><button class="pos-pill" id="store-status">● Store Online</button><button class="pos-pill" id="kot-open">▤ KOT Queue</button><button class="pos-pill" id="receipt-open">▣ Receipt</button>
+   </div></div>
+   <div class="billing-row">
+    <label><input type="radio" name="order-mode" value="Delivery"> Delivery</label>
+    <label><input type="radio" name="order-mode" value="Pickup" checked> Pick Up</label>
+    <label><input type="radio" name="order-mode" value="Dine-in"> Dine-in</label>
+    <label>Table <select class="billing-input" id="table-select"><option>Choose table</option><option>Table 01</option><option>Table 02</option><option>Table 03</option><option>Table 04</option><option>Table 05</option></select></label>
+   </div>
+   <div class="billing-row">
+    <label>Mobile</label><input class="billing-input" id="customer-mobile" placeholder="10 digit mobile" maxlength="10">
+    <label>Name</label><input class="billing-input" id="customer-name" placeholder="Customer name">
+    <label>Address</label><input class="billing-input" id="customer-address" placeholder="Address / locality" style="flex:1">
+   </div>
+   <div class="billing-row">
+    <input id="menu-search" class="billing-input billing-search" placeholder="Search menu items… (type and press Enter)">
+    <div class="billing-category" id="billing-categories">
+     <button class="pos-pill active" data-category="All">All Items</button><button class="pos-pill" data-category="Main Course">Main Course</button><button class="pos-pill" data-category="Breads">Breads</button><button class="pos-pill" data-category="Starters">Starters</button><button class="pos-pill" data-category="Drinks">Drinks</button>
+    </div>
+   </div>
+   <div id="billing-products" class="billing-products"></div>
+   <div style="overflow:auto">
+    <table class="billing-table"><thead><tr><th>Item</th><th>Special Note</th><th>Qty.</th><th>Price</th><th>Amount</th><th></th></tr></thead><tbody id="cart-body"></tbody></table>
+   </div>
+   <div class="billing-totalrow"><div>Total Qty. <strong id="cart-qty">0</strong></div><div>Sub Total <strong id="cart-subtotal">₹0.00</strong></div><div>CGST <strong id="cart-cgst">₹0.00</strong></div><div>SGST <strong id="cart-sgst">₹0.00</strong></div></div>
+   <div class="billing-row"><label>Discount</label><select class="billing-input" id="discount-type"><option value="percent">Percent (%)</option><option value="flat">Flat (₹)</option></select><input class="billing-input" id="discount-value" type="number" min="0" value="0" style="width:90px"><label>Order Notes</label><input class="billing-input" id="order-notes" placeholder="Order instructions" style="flex:1"></div>
+   <div class="billing-totalrow"><div>Grand Total <strong id="cart-total">₹0.00</strong></div><div>Payment Mode <select class="billing-input" id="payment-mode"><option>Cash</option><option>Card</option><option>UPI</option></select></div></div>
+   <div class="billing-bottom"><div class="billing-actions"><button class="billing-action" id="send-kot">Send to KOT</button><button class="billing-action" id="hold-order">Hold</button><button class="billing-action" id="reset-order">Reset</button></div><div class="billing-actions"><button class="billing-action primary" id="save-print">Save &amp; Print</button></div></div>
+  </div>
+ </div>
+ <div id="receipt-print" style="display:none"></div>
+</section>
+
+
   <header class="topbar">
    <div class="brand"><div class="brandmark"><i class="fa-solid fa-utensils"></i></div><div><h1>FreeMenu POS</h1><p>Master Billing Station <span style="color:#34d399">• Online</span></p></div><span class="status"><span class="online-dot"></span> Store Online</span></div>
    <div class="utilities">
@@ -221,6 +354,77 @@ function backdropClose(e){if(e.target.id==='modalBack')closeModal()}
 function toast(message){const el=document.getElementById('toast');el.textContent=message;el.style.display='block';clearTimeout(window.__toastTimer);window.__toastTimer=setTimeout(()=>el.style.display='none',2600)}
 document.addEventListener('keydown',e=>{if(e.key==='Escape')closeModal();if(e.altKey&&e.key==='1')navigate('billing');if(e.altKey&&e.key==='2')navigate('operations');if(e.altKey&&e.key==='3')navigate('reports');if(e.altKey&&e.key==='4')navigate('live')});
 renderTiles();renderIntegrations();renderReports();renderTickets();
+</script>
+<script>
+
+// Billing counter demo state; replace these mock arrays with Supabase/API calls later.
+const posMenu = [
+ {id:1,name:'Paneer Butter Masala',category:'Main Course',price:260,veg:true,stock:true},
+ {id:2,name:'Dal Makhani',category:'Main Course',price:220,veg:true,stock:true},
+ {id:3,name:'Shahi Paneer',category:'Main Course',price:250,veg:true,stock:true},
+ {id:4,name:'Tandoori Roti',category:'Breads',price:20,veg:true,stock:true},
+ {id:5,name:'Butter Naan',category:'Breads',price:45,veg:true,stock:true},
+ {id:6,name:'Veg Spring Roll',category:'Starters',price:150,veg:true,stock:true},
+ {id:7,name:'Chicken Tikka',category:'Starters',price:240,veg:false,stock:true},
+ {id:8,name:'Masala Soda',category:'Drinks',price:60,veg:true,stock:true}
+];
+let posCart = [];
+let posCategory = 'All';
+let posOrderMode = 'Pickup';
+let posKots = [];
+const inr = n => '₹' + Number(n||0).toFixed(2);
+function renderPosProducts(){
+ const q=(document.getElementById('menu-search')?.value||'').toLowerCase();
+ const root=document.getElementById('billing-products'); if(!root)return;
+ root.innerHTML=posMenu.filter(x=>x.stock&&(posCategory==='All'||x.category===posCategory)&&x.name.toLowerCase().includes(q))
+ .map(x=>`<button class="product-card" data-product="${x.id}"><strong><span class="product-dot"></span>${x.name}</strong><span>${x.category} · ${inr(x.price)}</span></button>`).join('')||'<div class="empty-cart">No menu items match your search.</div>';
+}
+function renderPosCart(){
+ const body=document.getElementById('cart-body'); if(!body)return;
+ body.innerHTML=posCart.map(x=>`<tr><td><b>${x.name}</b></td><td><input class="billing-input pos-note" data-id="${x.id}" placeholder="e.g. less oil" value="${escapeHtml(x.note||'')}" style="width:130px"></td><td><button class="pos-pill" data-dec="${x.id}">−</button> ${x.qty} <button class="pos-pill" data-inc="${x.id}">+</button></td><td>${inr(x.price)}</td><td>${inr(x.price*x.qty)}</td><td><button class="pos-pill" data-remove="${x.id}">×</button></td></tr>`).join('')||'<tr><td colspan="6" class="empty-cart">Choose menu items to start the bill.</td></tr>';
+ const qty=posCart.reduce((s,x)=>s+x.qty,0),sub=posCart.reduce((s,x)=>s+x.price*x.qty,0);
+ const discVal=Math.max(0,Number(document.getElementById('discount-value')?.value||0));
+ const discount=document.getElementById('discount-type')?.value==='flat'?Math.min(sub,discVal):Math.min(sub,sub*discVal/100);
+ const taxable=Math.max(0,sub-discount),cgst=taxable*.025,sgst=taxable*.025,total=taxable+cgst+sgst;
+ document.getElementById('cart-qty').textContent=qty;
+ document.getElementById('cart-subtotal').textContent=inr(sub);
+ document.getElementById('cart-cgst').textContent=inr(cgst);
+ document.getElementById('cart-sgst').textContent=inr(sgst);
+ document.getElementById('cart-total').textContent=inr(total);
+}
+function escapeHtml(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+function addPosItem(id){const item=posMenu.find(x=>x.id===Number(id));if(!item||!item.stock)return;const found=posCart.find(x=>x.id===item.id);if(found)found.qty++;else posCart.push({...item,qty:1,note:''});renderPosCart();}
+function makePosReceipt(){
+ const total=document.getElementById('cart-total').textContent;
+ document.getElementById('receipt-print').innerHTML=`<div style="font:12px monospace;padding:4mm;width:72mm;color:#000"><center><h2>FreeMenu POS</h2><p>Restaurant Billing Receipt</p></center><hr>${posCart.map(x=>`<div>${escapeHtml(x.name)} × ${x.qty}<span style="float:right">${inr(x.price*x.qty)}</span></div>${x.note?`<small>Note: ${escapeHtml(x.note)}</small>`:''}`).join('')}<hr><div>Total: <b style="float:right">${total}</b></div><p>Payment: ${escapeHtml(document.getElementById('payment-mode').value)}</p><center>Thank you!</center></div>`;
+ document.getElementById('receipt-print').style.display='block';
+}
+document.addEventListener('click',e=>{
+ const product=e.target.closest('[data-product]');if(product){addPosItem(product.dataset.product);return;}
+ const inc=e.target.closest('[data-inc]');if(inc){const x=posCart.find(x=>x.id===Number(inc.dataset.inc));if(x)x.qty++;renderPosCart();return;}
+ const dec=e.target.closest('[data-dec]');if(dec){const x=posCart.find(x=>x.id===Number(dec.dataset.dec));if(x)x.qty=Math.max(1,x.qty-1);renderPosCart();return;}
+ const rem=e.target.closest('[data-remove]');if(rem){posCart=posCart.filter(x=>x.id!==Number(rem.dataset.remove));renderPosCart();return;}
+ const cat=e.target.closest('[data-category]');if(cat){posCategory=cat.dataset.category;document.querySelectorAll('[data-category]').forEach(b=>b.classList.toggle('active',b===cat));renderPosProducts();return;}
+ const mode=e.target.closest('[data-mode]');if(mode){posOrderMode=mode.dataset.mode;document.querySelectorAll('[data-mode]').forEach(b=>b.classList.toggle('active',b===mode));document.querySelectorAll('[name="order-mode"]').forEach(r=>r.checked=r.value===posOrderMode);return;}
+ if(e.target.closest('#send-kot')){if(!posCart.length){alert('Add items before sending to KOT.');return;}posKots.push({id:Date.now(),items:posCart.map(x=>({...x})),mode:posOrderMode,notes:document.getElementById('order-notes').value});alert('KOT sent to demo queue. Running cart is preserved.');return;}
+ if(e.target.closest('#hold-order')){alert('Order held in this browser demo.');return;}
+ if(e.target.closest('#reset-order')){if(confirm('Clear current cart?')){posCart=[];renderPosCart();}return;}
+ if(e.target.closest('#save-print')){if(!posCart.length){alert('Add items before saving bill.');return;}makePosReceipt();window.print();return;}
+ if(e.target.closest('#receipt-open')){if(!posCart.length){alert('Add items to preview a receipt.');return;}makePosReceipt();const w=window.open('','_blank','width=380,height=700');if(w){w.document.write('<html><head><title>Receipt Preview</title></head><body>'+document.getElementById('receipt-print').innerHTML+'</body></html>');w.document.close();}return;}
+ if(e.target.closest('#kot-open')){alert(posKots.length?`KOT Queue: ${posKots.length} ticket(s) in demo queue.`:'KOT queue is empty.');return;}
+ if(e.target.closest('#item-onoff')){const name=prompt('Enter exact menu item to toggle on/off:');if(name){const item=posMenu.find(x=>x.name.toLowerCase()===name.toLowerCase());if(item){item.stock=!item.stock;renderPosProducts();alert(`${item.name} is now ${item.stock?'ON':'OFF'}.`);}else alert('Item not found in demo menu.');}return;}
+ if(e.target.closest('#store-status')){const b=document.getElementById('store-status');const online=b.dataset.online!=='false';b.dataset.online=String(!online);b.textContent=online?'● Store Offline':'● Store Online';b.classList.toggle('active',!online);return;}
+ if(e.target.closest('#new-order')){posCart=[];renderPosCart();document.getElementById('customer-mobile').value='';document.getElementById('customer-name').value='';document.getElementById('order-notes').value='';return;}
+});
+document.addEventListener('input',e=>{
+ if(e.target.id==='menu-search')renderPosProducts();
+ if(e.target.id==='discount-value')renderPosCart();
+ if(e.target.classList.contains('pos-note')){const x=posCart.find(x=>x.id===Number(e.target.dataset.id));if(x)x.note=e.target.value;}
+});
+document.addEventListener('change',e=>{if(e.target.id==='discount-type')renderPosCart();});
+document.querySelectorAll('[name="order-mode"]').forEach(r=>r.addEventListener('change',()=>{posOrderMode=r.value;document.querySelectorAll('[data-mode]').forEach(b=>b.classList.toggle('active',b.dataset.mode===posOrderMode));}));
+renderPosProducts();renderPosCart();
+
 </script>
 </body>
 </html>
