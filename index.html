@@ -66,6 +66,15 @@ main{min-width:0}.topbar{height:72px;background:#fff;border-bottom:1px solid var
 .size-price-btn{display:flex;flex-direction:column;align-items:center;gap:3px;padding:7px 5px;border:1px solid #b9e8ce;border-radius:9px;background:#f0fdf4;color:#166534;cursor:pointer;font-size:11px}
 .size-price-btn b{font-size:12px}
 .size-price-btn:hover{background:#059669;color:#fff;border-color:#059669}
+
+.menu-search-bottom{margin-top:14px;padding-top:12px;border-top:1px solid #d9e7df}
+.menu-search-bottom .field-label{display:block;max-width:100%}
+.menu-search-bottom .field{width:100%;box-sizing:border-box}
+
+.customer-grid-contact{grid-template-columns:repeat(2,minmax(0,1fr));margin-bottom:14px}
+.customer-grid-contact .field-label{min-width:0}
+@media(max-width:640px){.customer-grid-contact{grid-template-columns:1fr}}
+.menu-search-bottom{margin:4px 0 14px;padding:0;border:0}
 </style>
 </head>
 <body>
@@ -130,11 +139,15 @@ main{min-width:0}.topbar{height:72px;background:#fff;border-bottom:1px solid var
     <div class="panel-head menu-panel-head"><h3><i class="fa-solid fa-utensils" style="color:#059669;margin-right:7px"></i>Menu</h3><div class="menu-source-controls"><select id="supabase-restaurant" class="field compact-select" aria-label="Choose restaurant"><option value="">Loading restaurants…</option></select><button class="btn btn-light" id="supabase-refresh" type="button"><i class="fa-solid fa-rotate"></i> Sync</button><button class="btn btn-primary" id="supabase-add-item" type="button"><i class="fa-solid fa-plus"></i> Add Item</button><span class="tiny muted" id="menu-count">Loading menu…</span></div></div>
     <div class="panel-body">
      <div class="mode-row" id="order-modes"><button class="chip active" data-mode="Dine-in">Dine-in</button><button class="chip" data-mode="Takeaway">Takeaway / Counter</button><button class="chip" data-mode="Delivery">Delivery</button></div>
-     <div class="customer-grid">
+     <div class="customer-grid customer-grid-contact">
+      <label class="field-label">Mobile number<input class="field" id="customer-mobile" inputmode="numeric" maxlength="10" placeholder="Enter 10 digit mobile"></label>
+      <label class="field-label">Customer name<input class="field" id="customer-name" placeholder="Enter name (optional)"></label>
+      <label class="field-label">Address<input class="field" id="customer-address" placeholder="Enter address"></label>
+      <label class="field-label">Locality<input class="field" id="customer-locality" placeholder="Enter locality"></label>
       <label class="field-label">Table<select class="field" id="table-select"><option>Table 01</option><option>Table 02</option><option>Table 03</option><option>Table 04</option><option>Counter</option></select></label>
-      <label class="field-label">Search menu<input class="field" id="menu-search" placeholder="Search items…" autocomplete="off"></label>
-      <label class="field-label">Customer name<input class="field" id="customer-name" placeholder="Name (optional)"></label>
-      <label class="field-label">Mobile number<input class="field" id="customer-mobile" inputmode="numeric" maxlength="10" placeholder="10 digit mobile"></label>
+     </div>
+     <div class="menu-search-bottom">
+      <label class="field-label"><i class="fa-solid fa-magnifying-glass"></i> Search menu<input class="field" id="menu-search" placeholder="Search items…" autocomplete="off"></label>
      </div>
      <div class="category-row" id="categories"></div>
      <div class="menu-grid" id="menu-grid"></div>
