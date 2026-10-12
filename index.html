@@ -61,6 +61,11 @@ main{min-width:0}.topbar{height:72px;background:#fff;border-bottom:1px solid var
 #fm-auth-submit:disabled{opacity:.65;cursor:wait}
 #fm-auth-error{color:#b91c1c;font-size:12px;line-height:1.5;margin-top:12px}
 .fm-auth-foot{margin:18px 0 0}
+
+.size-price-options{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px;margin-top:9px}
+.size-price-btn{display:flex;flex-direction:column;align-items:center;gap:3px;padding:7px 5px;border:1px solid #b9e8ce;border-radius:9px;background:#f0fdf4;color:#166534;cursor:pointer;font-size:11px}
+.size-price-btn b{font-size:12px}
+.size-price-btn:hover{background:#059669;color:#fff;border-color:#059669}
 </style>
 </head>
 <body>
@@ -231,7 +236,7 @@ function addItem(id){const m=menu.find(x=>x.id===Number(id));if(!m||!m.stock){to
 function cartMath(){const subtotal=state.cart.reduce((s,x)=>s+x.price*x.qty,0);const dv=Math.max(0,Number($("#discount-value").value)||0);const discount=Math.min(subtotal,$("#discount-type").value==="percent"?subtotal*Math.min(dv,100)/100:dv);const taxable=Math.max(0,subtotal-discount);const tax=taxable*(Number($("#tax-rate").value)||0)/100;return{subtotal,discount,taxable,cgst:tax/2,sgst:tax/2,total:Math.round((taxable+tax)*100)/100}}
 function renderCart(){
  $("#cart-subtitle").textContent=state.mode+" · "+(state.mode==="Dine-in"?$("#table-select").value:state.mode==="Delivery"?"Delivery order":"Counter pickup");
- $("#cart-list").innerHTML=state.cart.map(x=>`<div class="cart-item"><div><strong>${escapeHTML(x.name)}</strong><div class="subline">${rupees(x.price)} each · ${escapeHTML(x.category)}</div></div><div class="qty"><button data-qty="${x.id}" data-delta="-1" aria-label="Decrease quantity">−</button><span>${x.qty}</span><button data-qty="${x.id}" data-delta="1" aria-label="Increase quantity">+</button><button class="btn danger" style="padding:4px 7px" data-remove="${x.id}" aria-label="Remove item"><i class="fa-solid fa-trash"></i></button></div><input class="field cart-note" data-note="${x.id}" value="${escapeHTML(x.note)}" placeholder="Special note for ${escapeHTML(x.name)}"></div>`).join("")||'<div class="empty"><i class="fa-solid fa-basket-shopping" style="font-size:26px;display:block;margin-bottom:8px"></i>Cart is empty. Add menu items to start a bill.</div>';
+ $("#cart-list").innerHTML=state.cart.map(x=>{const key=x.cartKey||String(x.id);return `<div class="cart-item"><div><strong>${escapeHTML(x.name)}${x.variant&&x.variant!=="Regular"?" · "+escapeHTML(x.variant):""}</strong><div class="subline">${rupees(x.price)} each · ${escapeHTML(x.category)}</div></div><div class="qty"><button data-qty="${escapeHTML(key)}" data-delta="-1" aria-label="Decrease quantity">−</button><span>${x.qty}</span><button data-qty="${escapeHTML(key)}" data-delta="1" aria-label="Increase quantity">+</button><button class="btn danger" style="padding:4px 7px" data-remove="${escapeHTML(key)}" aria-label="Remove item"><i class="fa-solid fa-trash"></i></button></div><input class="field cart-note" data-note="${escapeHTML(key)}" value="${escapeHTML(x.note)}" placeholder="Special note for ${escapeHTML(x.name)}"></div>`}).join("")||'<div class="empty"><i class="fa-solid fa-basket-shopping" style="font-size:26px;display:block;margin-bottom:8px"></i>Cart is empty. Add menu items to start a bill.</div>';
  const m=cartMath();$("#subtotal").textContent=rupees(m.subtotal);$("#discount-total").textContent="−"+rupees(m.discount);$("#cgst").textContent=rupees(m.cgst);$("#sgst").textContent=rupees(m.sgst);$("#grand-total").textContent=rupees(m.total);
 }
 function sendKOT(){if(!state.cart.length){toast("Add items before sending a KOT.");return}const t={id:"KOT-"+state.nextKot++,order:"ORD-"+Math.floor(7000+Math.random()*2000),mode:state.mode,source:"Counter",table:state.mode==="Dine-in"?$("#table-select").value:state.mode==="Delivery"?"Delivery":"Pickup",customer:$("#customer-name").value.trim()||"Walk-in",note:$("#order-note").value.trim()||state.cart.map(x=>x.note).filter(Boolean).join(", ")||"No special instructions",status:"Preparing",created:Date.now(),total:cartMath().total,items:state.cart.map(x=>({name:x.name,qty:x.qty,note:x.note}))};state.tickets.unshift(t);$("#kot-count").textContent=state.tickets.filter(x=>x.status==="Preparing").length;renderTickets();toast(t.id+" sent to kitchen. Cart retained.");}
@@ -335,8 +340,8 @@ document.addEventListener("click",e=>{
  const mode=e.target.closest("[data-mode]");if(mode){state.mode=mode.dataset.mode;$$("[data-mode]").forEach(b=>b.classList.toggle("active",b===mode));if(state.mode!=="Dine-in")$("#table-select").value="Counter";renderCart();return}
  const cat=e.target.closest("[data-category]");if(cat){state.category=cat.dataset.category;renderMenu();return}
  const add=e.target.closest("[data-add]");if(add){addItem(add.dataset.add);return}
- const qty=e.target.closest("[data-qty]");if(qty){const x=state.cart.find(i=>i.id===Number(qty.dataset.qty));if(x){x.qty+=Number(qty.dataset.delta);if(x.qty<=0)state.cart=state.cart.filter(i=>i.id!==x.id);renderCart()}return}
- const remove=e.target.closest("[data-remove]");if(remove){state.cart=state.cart.filter(x=>x.id!==Number(remove.dataset.remove));renderCart();return}
+ const qty=e.target.closest("[data-qty]");if(qty){const x=state.cart.find(i=>(i.cartKey||String(i.id))===qty.dataset.qty);if(x){x.qty+=Number(qty.dataset.delta);if(x.qty<=0)state.cart=state.cart.filter(i=>(i.cartKey||String(i.id))!==qty.dataset.qty);renderCart()}return}
+ const remove=e.target.closest("[data-remove]");if(remove){state.cart=state.cart.filter(x=>(x.cartKey||String(x.id))!==remove.dataset.remove);renderCart();return}
  const pay=e.target.closest("[data-pay]");if(pay){state.payment=pay.dataset.pay;$$("[data-pay]").forEach(b=>b.classList.toggle("active",b===pay));return}
  const filter=e.target.closest("[data-filter]");if(filter){state.liveFilter=filter.dataset.filter;$$("[data-filter]").forEach(b=>b.classList.toggle("active",b===filter));renderTickets();return}
  const ticket=e.target.closest("[data-ticket-action]");if(ticket){const t=state.tickets.find(x=>x.id===ticket.dataset.ticket);if(!t)return;if(ticket.dataset.ticketAction==="ready"){t.status="Ready";toast(t.id+" marked food ready.")}else if(ticket.dataset.ticketAction==="dispatch"){t.status="Dispatched";toast(t.id+" dispatched.")}else if(ticket.dataset.ticketAction==="print"){openModal("KOT Print Preview",`<div style="font-family:monospace"><h3>${escapeHTML(t.id)}</h3><p>${escapeHTML(t.mode)} · ${escapeHTML(t.table)}</p>${t.items.map(i=>`<p>${i.qty} × ${escapeHTML(i.name)}</p>`).join("")}<hr><p>${escapeHTML(t.note)}</p></div>`,()=>window.print())}else openModal(t.id,`<p>Status: ${escapeHTML(t.status)}</p><p>${escapeHTML(t.note)}</p>`);renderTickets();return}
@@ -367,7 +372,10 @@ renderOps();renderSettings();renderMenu();renderCart();renderTickets();renderRep
  const safe = v => String(v ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
  const notify = msg => typeof window.toast === "function" ? window.toast(msg) : alert(msg);
  const getRestaurantName = r => r.name || r.restaurant_name || r.title || ("Restaurant " + String(r.id).slice(0,8));
- const priceOf = m => Number(m.price ?? m.price_full ?? m.price_half ?? m.price_quarter ?? 0);
+ const firstPrice = (...values) => { const v=values.find(x=>x!==null&&x!==undefined&&x!==""); return v===undefined?0:Number(v)||0; };
+ const halfPriceOf = m => firstPrice(m.price_half,m.half_price,m.half,m.priceHalf);
+ const fullPriceOf = m => firstPrice(m.price_full,m.full_price,m.full,m.priceFull,m.price);
+ const priceOf = m => firstPrice(m.price,m.price_full,m.full_price,m.price_half,m.half_price,m.price_quarter);
  const categoryOf = m => m.category || m.cat || "Other";
  const mapItem = m => ({...m, name:m.name || m.item_name || "Unnamed item", category:categoryOf(m), price:priceOf(m), veg: m.is_veg === true || m.veg === true, stock: m.is_available !== false && m.available !== false && m.is_active !== false && m.stock !== false, icon:"fa-bowl-food"});
 
@@ -415,13 +423,20 @@ renderOps();renderSettings();renderMenu();renderCart();renderTickets();renderRep
    const shown = liveMenu.filter(m => (state.category==="All" || m.category===state.category) && m.name.toLowerCase().includes(search) && m.stock);
    const host = byId("menu-grid");
    if (!host) return;
-   host.innerHTML = shown.map(m=>`<div class="menu-item" data-menu-card="${safe(m.id)}">
-     <button type="button" class="menu-edit-btn" data-db-edit="${safe(m.id)}" title="Edit this item"><i class="fa-solid fa-pen"></i> Edit</button>
-     <div class="food-thumb"><i class="fa-solid ${safe(m.icon)}"></i></div>
-     <span class="food-tag ${m.veg?"":"nonveg"}">${m.veg?"VEG":"NON-VEG"}</span>
-     <strong>${safe(m.name)}</strong><div class="price">${rupees(m.price)}</div>
-     <button type="button" class="add-plus" data-db-add="${safe(m.id)}" aria-label="Add ${safe(m.name)}"><i class="fa-solid fa-plus"></i></button>
-   </div>`).join("") || '<div class="empty" style="grid-column:1/-1">Is restaurant ke Supabase menu mein available items nahi mile. Restaurant select karein ya Menu section se item add karein.</div>';
+   host.innerHTML = shown.map(m=>{
+     const half=halfPriceOf(m), full=fullPriceOf(m);
+     const hasHalf=half>0, hasFull=full>0;
+     const choices=(hasHalf||hasFull)
+       ? `<div class="size-price-options">${hasHalf?`<button type="button" class="size-price-btn" data-db-add="${safe(m.id)}" data-variant="Half"><span>Half</span><b>${rupees(half)}</b></button>`:""}${hasFull?`<button type="button" class="size-price-btn" data-db-add="${safe(m.id)}" data-variant="Full"><span>Full</span><b>${rupees(full)}</b></button>`:""}</div>`
+       : `<button type="button" class="add-plus" data-db-add="${safe(m.id)}" data-variant="Regular" aria-label="Add ${safe(m.name)}"><i class="fa-solid fa-plus"></i></button>`;
+     return `<div class="menu-item" data-menu-card="${safe(m.id)}">
+       <button type="button" class="menu-edit-btn" data-db-edit="${safe(m.id)}" title="Edit this item"><i class="fa-solid fa-pen"></i> Edit</button>
+       <div class="food-thumb"><i class="fa-solid ${safe(m.icon)}"></i></div>
+       <span class="food-tag ${m.veg?"":"nonveg"}">${m.veg?"VEG":"NON-VEG"}</span>
+       <strong>${safe(m.name)}</strong>${!(hasHalf||hasFull)?`<div class="price">${rupees(m.price)}</div>`:""}
+       ${choices}
+     </div>`;
+   }).join("") || '<div class="empty" style="grid-column:1/-1">Is restaurant ke Supabase menu mein available items nahi mile. Restaurant select karein ya Menu section se item add karein.</div>';
  }
  function openItemEditor(item=null) {
    editingItem = item;
@@ -430,7 +445,9 @@ renderOps();renderSettings();renderMenu();renderCart();renderTickets();renderRep
     <label class="full">Restaurant<select id="db-item-restaurant" required>${outlets.map(r=>`<option value="${safe(r.id)}" ${String(r.id)===String(item?.restaurant_id || selectedOutlet)?"selected":""}>${safe(getRestaurantName(r))}</option>`).join("")}</select></label>
     <label>Item name<input id="db-item-name" required maxlength="120" value="${safe(item?.name||"")}"></label>
     <label>Category<input id="db-item-category" required maxlength="80" value="${safe(categoryOf(item||{}))}"></label>
-    <label>Price (₹)<input id="db-item-price" type="number" min="0" step="0.01" required value="${safe(priceOf(item||{}))}"></label>
+    <label>Regular price (₹)<input id="db-item-price" type="number" min="0" step="0.01" value="${safe(priceOf(item||{}))}"></label>
+    <label>Half price (₹)<input id="db-item-half" type="number" min="0" step="0.01" value="${safe(halfPriceOf(item||{} )||"")}"></label>
+    <label>Full price (₹)<input id="db-item-full" type="number" min="0" step="0.01" value="${safe(fullPriceOf(item||{} )||"")}"></label>
     <label>Type<select id="db-item-veg"><option value="true" ${(item?.is_veg===true || item?.veg===true)?"selected":""}>Vegetarian</option><option value="false" ${(item && item.is_veg!==true && item.veg!==true)?"selected":""}>Non-vegetarian</option></select></label>
     <label class="full">Description<textarea id="db-item-description" rows="2">${safe(item?.description||"")}</textarea></label>
     <div class="full" style="display:flex;justify-content:flex-end;gap:8px"><button type="button" class="btn btn-light" data-db-cancel>Cancel</button><button type="submit" class="btn btn-primary">${isEdit?"Save Changes":"Create Item"}</button></div>
@@ -446,11 +463,14 @@ renderOps();renderSettings();renderMenu();renderCart();renderTickets();renderRep
      restaurant_id: restaurantId,
      name: byId("db-item-name").value.trim(),
      category: byId("db-item-category").value.trim(),
-     price: Number(byId("db-item-price").value),
      is_veg: byId("db-item-veg").value === "true",
      description: byId("db-item-description").value.trim()
    };
-   if (!payload.name || !payload.category || !Number.isFinite(payload.price) || payload.price < 0) return notify("Name, category aur valid price enter karein.");
+   const regularRaw=byId("db-item-price").value, halfRaw=byId("db-item-half").value, fullRaw=byId("db-item-full").value;
+   if(regularRaw!=="") payload.price=Number(regularRaw);
+   if(halfRaw!=="") payload.price_half=Number(halfRaw);
+   if(fullRaw!=="") payload.price_full=Number(fullRaw);
+   if (!payload.name || !payload.category || [regularRaw,halfRaw,fullRaw].some(v=>v!==""&&(!Number.isFinite(Number(v))||Number(v)<0)) || [regularRaw,halfRaw,fullRaw].every(v=>v==="")) return notify("Name/category aur kam se kam ek valid price (Regular, Half ya Full) enter karein.");
    let result;
    if (id) {
      // Do not overwrite unrelated columns such as quarter/half/full prices.
@@ -471,19 +491,22 @@ renderOps();renderSettings();renderMenu();renderCart();renderTickets();renderRep
    await loadMenu();
    notify(id ? "Menu item Supabase mein update ho gaya." : "Menu item Supabase mein add ho gaya.");
  }
- function addDbItem(id) {
+ function addDbItem(id, variant="Regular") {
    const m = liveMenu.find(x=>String(x.id)===String(id));
    if (!m || !m.stock) return notify("Item available nahi hai.");
-   const found = state.cart.find(x=>String(x.id)===String(m.id));
+   const unitPrice = variant==="Half" ? halfPriceOf(m) : variant==="Full" ? fullPriceOf(m) : priceOf(m);
+   if (!(unitPrice>0)) return notify(variant+" price Supabase menu item mein set nahi hai. Menu item edit karke price save karein.");
+   const cartKey=String(m.id)+"::"+variant;
+   const found = state.cart.find(x=>(x.cartKey||String(x.id))===cartKey);
    if (found) found.qty++;
-   else state.cart.push({...m,qty:1,note:""});
+   else state.cart.push({...m,id:m.id,cartKey,variant,price:unitPrice,qty:1,note:""});
    renderCart();
  }
  document.addEventListener("click", async e=>{
    const edit = e.target.closest("[data-db-edit]");
    if (edit) { e.preventDefault(); e.stopPropagation(); const item=liveMenu.find(m=>String(m.id)===edit.dataset.dbEdit); if(item)openItemEditor(item); return; }
    const add = e.target.closest("[data-db-add]");
-   if (add) { e.preventDefault(); e.stopPropagation(); addDbItem(add.dataset.dbAdd); return; }
+   if (add) { e.preventDefault(); e.stopPropagation(); addDbItem(add.dataset.dbAdd, add.dataset.variant || "Regular"); return; }
    if (e.target.closest("[data-db-cancel]")) { closeModal(); return; }
    if (e.target.closest("#supabase-add-item")) { openItemEditor(); return; }
    if (e.target.closest("#supabase-refresh")) { try { await loadMenu(); notify("Supabase menu refreshed."); } catch(err) { notify("Menu load error: "+err.message); } return; }
