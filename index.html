@@ -280,7 +280,7 @@ function renderReceipt(inv){$("#receipt-print").style.display="block";$("#receip
 function renderTickets(){
  const filtered=state.tickets.filter(t=>state.liveFilter==="All"||t.mode===state.liveFilter||t.source===state.liveFilter);
  $("#ticket-grid").innerHTML=filtered.map(t=>`<article class="ticket"><div class="ticket-head"><div><strong>${escapeHTML(t.source)} · ${escapeHTML(t.id)}</strong><div class="tiny muted" style="margin-top:5px">${escapeHTML(t.order)} · ${escapeHTML(t.table)}</div></div><span class="badge ${t.status==="Preparing"?"orange":""}">${escapeHTML(t.status)}</span></div><div class="ticket-body"><div class="tiny muted">${escapeHTML(t.customer)} · ${Math.max(0,Math.floor((Date.now()-t.created)/60000))} min ago</div><div class="ticket-items">${t.items.map(i=>`<div><strong>${i.qty} ×</strong> ${escapeHTML(i.name)} ${i.note?`<span class="muted">(${escapeHTML(i.note)})</span>`:""}</div>`).join("")}</div><div class="tiny muted"><i class="fa-regular fa-note-sticky"></i> ${escapeHTML(t.note)}</div><div style="font-size:15px;font-weight:850;margin-top:10px">${rupees(t.total)}</div></div><div class="ticket-foot">${t.status==="Preparing"?`<button class="btn primary" data-ticket-action="ready" data-ticket="${t.id}">Food Ready</button>`:t.status==="Ready"?`<button class="btn primary" data-ticket-action="dispatch" data-ticket="${t.id}">Dispatch</button>`:`<button class="btn" data-ticket-action="details" data-ticket="${t.id}">Details</button>`}<button class="btn" data-ticket-action="print" data-ticket="${t.id}"><i class="fa-solid fa-print"></i></button></div></article>`).join("")||'<div class="empty" style="grid-column:1/-1">No tickets match this filter.</div>';
- $("#live-active").textContent=state.tickets.filter(t=>t.status==="Preparing").length;$("#live-ready").textContent=state.tickets.filter(t=>t.status==="Ready").length;$("#live-dispatch").textContent=state.tickets.filter(t=>t.status==="Dispatched").length;$("#live-delivered").textContent=state.tickets.filter(t=>t.status==="Delivered").length;$("#kot-count").textContent=state.tickets.filter(t=>t.status==="Preparing").length;
+ [ ["live-active",state.tickets.filter(t=>t.status==="Preparing").length],["live-ready",state.tickets.filter(t=>t.status==="Ready").length],["live-dispatch",state.tickets.filter(t=>t.status==="Dispatched").length],["live-delivered",state.tickets.filter(t=>t.status==="Delivered").length],["kot-count",state.tickets.filter(t=>t.status==="Preparing").length] ].forEach(([id,value])=>{const node=document.getElementById(id);if(node)node.textContent=String(value);});
 }
 const reports=[
  ["Category Summary","Categories sold for the selected date and time.","fa-chart-pie"],
@@ -304,7 +304,7 @@ const reports=[
 function renderReports(){
  $("#report-grid").innerHTML=reports.map(([name,desc,icon])=>`<button class="report-card" data-report="${escapeHTML(name)}"><span class="action-icon"><i class="fa-solid ${icon}"></i></span><span><strong>${escapeHTML(name)}</strong><p>${escapeHTML(desc)}</p></span><i class="fa-solid fa-arrow-right arrow"></i></button>`).join("");
  $("#invoice-rows").innerHTML=state.invoices.map(i=>`<tr><td><strong>${escapeHTML(i.id)}</strong></td><td>${escapeHTML(i.time||new Date(i.createdAt||Date.now()).toLocaleTimeString("en-IN"))}</td><td>${escapeHTML(i.mode||"—")}</td><td>${escapeHTML(i.payment||"—")}</td><td>${i.items||0}</td><td>${rupees(i.total)}</td><td><button class="btn" data-reprint="${escapeHTML(i.orderId||"")}">Reprint</button></td></tr>`).join("")||'<tr><td colspan="7" class="empty">No saved invoices found for this date.</td></tr>';
- const sales=state.invoices.reduce((a,x)=>a+Number(x.total||0),0);const tax=state.invoices.reduce((a,x)=>a+Number(x.cgst||0)+Number(x.sgst||0),0);$("#report-invoices").textContent=String(state.invoices.length);$("#report-tax").textContent=rupees(tax);if($("#report-sales"))$("#report-sales").textContent=rupees(sales);if($("#report-average"))$("#report-average").textContent=rupees(state.invoices.length?sales/state.invoices.length:0);
+ const sales=state.invoices.reduce((a,x)=>a+Number(x.total||0),0);const tax=state.invoices.reduce((a,x)=>a+Number(x.cgst||0)+Number(x.sgst||0),0);const reportInvoices=document.getElementById("report-invoices");if(reportInvoices)reportInvoices.textContent=String(state.invoices.length);const reportTax=document.getElementById("report-tax");if(reportTax)reportTax.textContent=rupees(tax);const reportSales=document.getElementById("report-sales");if(reportSales)reportSales.textContent=rupees(sales);const reportAverage=document.getElementById("report-average");if(reportAverage)reportAverage.textContent=rupees(state.invoices.length?sales/state.invoices.length:0);
 }
 const settingData={
  billing:[
@@ -477,7 +477,7 @@ const falseLike = value => value===false || value===0 || ["false","0","no","off"
      state.tickets=(ticketRows||[]).map(t=>({id:"KOT-"+String(t.id).slice(0,8).toUpperCase(),dbId:t.id,orderId:t.order_id,order:t.pos_orders?.invoice_number||String(t.order_id).slice(0,8),mode:t.pos_orders?.order_mode||"Dine-in",source:"Counter",table:String(t.table_number||1),customer:t.pos_orders?.customer_name||"Walk-in",note:t.notes||"",status:({new:"Preparing",preparing:"Preparing",ready:"Ready"})[t.status]||t.status,created:new Date(t.created_at).getTime(),total:Number(t.pos_orders?.total_amount||0),items:itemRows.filter(i=>i.order_id===t.order_id).map(i=>({name:i.item_name,qty:i.quantity,note:i.note||""}))}));
    }else{console.warn("KOT history not available:",ticketError.message);state.tickets=[];}
    const total=orders.filter(o=>["completed","paid"].includes(String(o.status||"").toLowerCase())).reduce((n,o)=>n+Number(o.total_amount||0),0);
-   byId("dash-sales").textContent=rupees(total);byId("dash-orders").textContent=String(orders.length);
+   const salesNode=byId("dash-sales");if(salesNode)salesNode.textContent=rupees(total);const ordersNode=byId("dash-orders");if(ordersNode)ordersNode.textContent=String(orders.length);
    renderTickets();renderReports();
  }
  const insertOrderItems=async(orderId,cart)=>{
@@ -515,14 +515,14 @@ const falseLike = value => value===false || value===0 || ["false","0","no","off"
    selectedOutlet = byId("supabase-restaurant").value || selectedOutlet;
    if (!selectedOutlet) return;
    localStorage.setItem("fm-pos-restaurant-id", selectedOutlet);
-   byId("menu-count").textContent = "Loading…";
+   if(byId("menu-count"))byId("menu-count").textContent = "Loading…";
    const {data,error} = await db.from("menu_items").select("*").eq("restaurant_id", selectedOutlet).order("name",{ascending:true});
    if (error) throw error;
    liveMenu = (data || []).map(mapItem);
    renderMenu();
    const outlet = outlets.find(r => String(r.id)===String(selectedOutlet));
    const count = liveMenu.length;
-   byId("menu-count").textContent = `${count} database item${count===1?"":"s"}${outlet ? " · "+getRestaurantName(outlet):""}`;
+   if(byId("menu-count"))byId("menu-count").textContent = `${count} database item${count===1?"":"s"}${outlet ? " · "+getRestaurantName(outlet):""}`;
     if(state.view==="menu-manager")renderMenuManager();
  }
  function renderMenu() {
@@ -618,7 +618,7 @@ const falseLike = value => value===false || value===0 || ["false","0","no","off"
     editingItem = item;
     const veg = String(item.item_type||"").toLowerCase()==="egg" ? "egg" : (item.is_veg===false || ["nonveg","non-veg","non veg"].includes(String(item.item_type||"").toLowerCase()) ? "nonveg":"veg");
     const orderTypes = Array.isArray(item.order_types) ? item.order_types : String(item.order_type||"").split(/[;,]/).map(x=>x.trim()).filter(Boolean);
-    byId("db-item-heading").textContent=item.name||item.item_name||"Unnamed item";
+    if(byId("db-item-heading"))byId("db-item-heading").textContent=item.name||item.item_name||"Unnamed item";
     byId("db-item-name").value=item.name||item.item_name||"";
     byId("db-item-base-price").value=String(priceOf(item));
     byId("db-item-category").value=categoryOf(item);
@@ -644,7 +644,7 @@ const falseLike = value => value===false || value===0 || ["false","0","no","off"
     const channel = (label, enabledKeys, priceKeys) => { const ek=firstKey(item,enabledKeys), pk=firstKey(item,priceKeys); return `<div style="display:grid;grid-template-columns:minmax(0,1fr) 110px auto;gap:8px;align-items:center;border-bottom:1px solid var(--line);padding:8px 0"><label style="display:flex;align-items:center;gap:8px"><input type="checkbox" id="fm-enabled-${label}" ${ek&&checkValue(item,enabledKeys)?"checked":""} ${ek?"":"disabled"}>${label}</label><input id="fm-price-${label}" type="number" min="0" step="0.01" value="${safe(pk?item[pk]:"")}" placeholder="Price" ${pk?"":"disabled"}><small class="muted">${ek&&pk?"Editable":ek?"No price field on this row":pk?"No availability field on this row":"Not supported by this row"}</small></div>`; };
     byId("fm-item-channels").innerHTML=[channel("Home Delivery",["home_delivery_enabled","is_home_delivery_enabled","home_delivery","delivery_enabled"],["home_delivery_price","delivery_price"]),channel("Zomato",["zomato_enabled","is_zomato_enabled"],["zomato_price"]),channel("Parcel",["parcel_enabled","is_parcel_enabled","parcel"],["parcel_price"]),channel("Swiggy",["swiggy_enabled","is_swiggy_enabled"],["swiggy_price"]),channel("Ownly",["ownly_enabled","is_ownly_enabled"],["ownly_price"])].join("");
     byId("fm-item-settings-error").hidden=true;
-    byId("db-item-save").disabled=false;byId("db-item-save").textContent="Save Settings";
+    if(byId("db-item-save")){byId("db-item-save").disabled=false;byId("db-item-save").textContent="Save Settings";}
     navigate("menu-item-settings");
   }
  function saveItem(e) {
