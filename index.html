@@ -729,13 +729,27 @@ const falseLike = value => value===false || value===0 || ["false","0","no","off"
  const loginButton = byId("fm-auth-submit");
  let authenticatedUser = null;
 
- function showLogin(message="") {
-   authGate.style.display = "flex";
-   loginError.textContent = message;
-   loginButton.disabled = false;
-   loginButton.innerHTML = 'Login to POS <i class="fa-solid fa-arrow-right"></i>';
+ function ensureLoginErrorNode() {
+   let node = byId("fm-auth-error");
+   if (!node && loginForm) {
+     node = document.createElement("div");
+     node.id = "fm-auth-error";
+     node.setAttribute("role", "alert");
+     node.style.cssText = "color:#b91c1c;font-size:12px;line-height:1.5;margin-top:12px";
+     loginForm.appendChild(node);
+   }
+   return node;
  }
- function hideLogin() { authGate.style.display = "none"; }
+ function showLogin(message="") {
+   if (authGate) authGate.style.display = "flex";
+   const errorNode = ensureLoginErrorNode();
+   if (errorNode) errorNode.textContent = message || "";
+   if (loginButton) {
+     loginButton.disabled = false;
+     loginButton.innerHTML = 'Login to POS <i class="fa-solid fa-arrow-right"></i>';
+   }
+ }
+ function hideLogin() { if (authGate) authGate.style.display = "none"; }
  async function startOwnerPOS(user) {
    authenticatedUser = user;
    try {
@@ -753,13 +767,19 @@ const falseLike = value => value===false || value===0 || ["false","0","no","off"
      showLogin(err.message || "Restaurant data load nahi hua.");
    }
  }
- loginForm.addEventListener("submit", async e => {
+ if (loginForm) loginForm.addEventListener("submit", async e => {
    e.preventDefault();
-   loginError.textContent = "";
-   loginButton.disabled = true;
-   loginButton.textContent = "Signing in…";
-   const email = byId("fm-auth-email").value.trim();
-   const password = byId("fm-auth-password").value;
+   const errorNode = ensureLoginErrorNode();
+   if (errorNode) errorNode.textContent = "";
+   if (loginButton) { loginButton.disabled = true; loginButton.textContent = "Signing in…"; }
+   const emailNode = byId("fm-auth-email");
+   const passwordNode = byId("fm-auth-password");
+   if (!emailNode || !passwordNode) {
+     showLogin("Login form incomplete: email/password fields are missing. Refresh the latest POS files.");
+     return;
+   }
+   const email = emailNode.value.trim();
+   const password = passwordNode.value;
    try {
      const {data,error} = await db.auth.signInWithPassword({email,password});
      if (error) throw error;
