@@ -504,6 +504,25 @@ const falseLike = value => value===false || value===0 || ["false","0","no","off"
  function firstKey(obj, keys) { return keys.find(k => Object.prototype.hasOwnProperty.call(obj || {}, k)); }
  function fieldValue(item, keys, fallback="") { const k=firstKey(item,keys); return k ? item[k] : fallback; }
  function checkValue(item, keys) { const v=fieldValue(item,keys,false); return v===true || v===1 || String(v).toLowerCase()==="true" || String(v).toLowerCase()==="yes" || String(v)==="1"; }
+  function booleanValueFor(existing, checked) {
+    if(typeof existing==="boolean")return checked;
+    if(typeof existing==="number"&&(existing===0||existing===1))return checked?1:0;
+    if(typeof existing==="string"){
+      const value=existing.trim().toLowerCase();
+      if(["true","false"].includes(value))return checked?"true":"false";
+      if(["yes","no"].includes(value))return checked?"yes":"no";
+      if(["1","0"].includes(value))return checked?"1":"0";
+      if(["on","off"].includes(value))return checked?"on":"off";
+    }
+    return undefined;
+  }
+  function availabilityField(item) {
+    for(const key of ["is_available","available","is_active","stock"]){
+      if(Object.prototype.hasOwnProperty.call(item,key)&&booleanValueFor(item[key],true)!==undefined)return {key};
+    }
+    if(Object.prototype.hasOwnProperty.call(item,"status")&&["available","unavailable","out_of_stock"].includes(String(item.status||"").trim().toLowerCase()))return {key:"status",status:true};
+    return null;
+  }
   function renderMenuManager() {
     const search=(byId("fm-manager-search")?.value||"").trim().toLowerCase();
     const category=byId("fm-manager-category")?.value||"All";
@@ -521,8 +540,7 @@ const falseLike = value => value===false || value===0 || ["false","0","no","off"
     });
     const host=byId("fm-manager-grid");
     if(host)host.innerHTML=filtered.map(m=>{
-      const key=firstKey(m,["is_available","available","is_active","stock","status"]);
-      const canToggle=Boolean(key);
+      const canToggle=Boolean(availabilityField(m));
       return `<article class="manager-item"><div class="manager-item-copy"><strong>${safe(m.name)}</strong><small>${safe(m.category)} · ${rupees(m.price)}${m.short_code?" · "+safe(m.short_code):""}</small></div><div class="manager-item-actions"><span class="manager-status ${m.stock?"":"off"}">${m.stock?"Available":"Unavailable"}</span><input class="toggle" type="checkbox" data-manager-toggle="${safe(m.id)}" ${m.stock?"checked":""} ${canToggle?"":"disabled"} aria-label="${safe(m.name)} availability" title="${canToggle?"Save availability to Supabase":"No supported availability field exists on this row"}"><button class="btn" type="button" data-manager-edit="${safe(m.id)}"><i class="fa-solid fa-pen"></i> Edit</button></div></article>`;
     }).join("")||'<div class="empty" style="grid-column:1/-1">No menu items match these filters.</div>';
     const count=byId("fm-manager-count");if(count)count.textContent=`${liveMenu.length} item${liveMenu.length===1?"":"s"} from Supabase · ${filtered.length} shown`;
@@ -535,11 +553,11 @@ const falseLike = value => value===false || value===0 || ["false","0","no","off"
   }
   window.fmOpenMenuManager = openMenuManager;
   async function saveAvailability(item,checked) {
-    const key=firstKey(item,["is_available","available","is_active","stock","status"]);
-    if(!key){notify("Availability cannot be changed: this row has no supported availability field.");return;}
-    let value=checked;
-    if(key==="status")value=checked?"available":"unavailable";
-    else if(typeof item[key]==="string")value=checked?"true":"false";
+    const availability=availabilityField(item);
+    if(!availability){notify("Availability cannot be changed: this row has no supported availability field.");return;}
+    const key=availability.key;
+    const value=availability.status?(checked?"available":"unavailable"):booleanValueFor(item[key],checked);
+    if(value===undefined){notify("Availability field type is not supported on this row.");renderMenuManager();return;}
     const host=byId("fm-manager-grid");if(host)host.setAttribute("aria-busy","true");
     try{
       const {error}=await db.from("menu_items").update({[key]:value}).eq("id",item.id).eq("restaurant_id",selectedOutlet).select("id").maybeSingle();
@@ -586,7 +604,7 @@ const falseLike = value => value===false || value===0 || ["false","0","no","off"
    e.preventDefault();
     const item=editingItem; if(!item) return;
    const payload={};
-   const setExisting=(keys,value)=>{const k=firstKey(item,keys);if(k)payload[k]=value;};
+    const setExisting=(keys,value)=>{const k=firstKey(item,keys);if(!k)return;const next=typeof value==="boolean"?booleanValueFor(item[k],value):value;if(next!==undefined)payload[k]=next;};
    const cat=byId('db-item-category').value.trim(); setExisting(['category','cat'],cat);
    setExisting(['short_code','shortcode','item_code','code'],byId('db-short-code').value.trim());
    setExisting(['short_code_2','shortcode2','short_code2','item_code_2','code2'],byId('db-short-code-2').value.trim());
@@ -594,14 +612,13 @@ const falseLike = value => value===false || value===0 || ["false","0","no","off"
    setExisting(['item_type'],choice==='egg'?'egg':choice==='nonveg'?'nonveg':'veg');
    setExisting(['is_veg','veg'],choice==='veg');
    const orderKey=firstKey(item,['order_types','order_type']);
-    if(orderKey){const selected=[];if(byId('fm-order-delivery').checked)selected.push('Delivery');if(byId('fm-order-pickup').checked)selected.push('Pick Up');payload[orderKey]=Array.isArray(item[orderKey])?selected:selected.join(', ');}
+     if(orderKey){const selected=[];if(byId('fm-order-delivery').checked)selected.push('Delivery');if(byId('fm-order-pickup').checked)selected.push('Pick Up');if(Array.isArray(item[orderKey]))payload[orderKey]=selected;else if(typeof item[orderKey]==='string')payload[orderKey]=selected.join(', ');}
    setExisting(['hsn_code','hsn'],byId('db-hsn').value.trim());
    setExisting(['description','details'],byId('db-item-description').value.trim());
    setExisting(['ignore_tax','is_tax_ignored'],byId('db-ignore-tax').checked);
    setExisting(['ignore_discount','is_discount_ignored'],byId('db-ignore-discount').checked);
    const channels=[['Home Delivery',['home_delivery_enabled','is_home_delivery_enabled','home_delivery','delivery_enabled'],['home_delivery_price','delivery_price']],['Zomato',['zomato_enabled','is_zomato_enabled'],['zomato_price']],['Parcel',['parcel_enabled','is_parcel_enabled','parcel'],['parcel_price']],['Swiggy',['swiggy_enabled','is_swiggy_enabled'],['swiggy_price']],['Ownly',['ownly_enabled','is_ownly_enabled'],['ownly_price']]];
-   channels.forEach(([label,enabledKeys,priceKeys])=>{const ek=firstKey(item,enabledKeys),pk=firstKey(item,priceKeys);if(ek)payload[ek]=byId('fm-enabled-'+label).checked;if(pk){const v=byId('fm-price-'+label).value;if(v!==''&&Number.isFinite(Number(v))&&Number(v)>=0)payload[pk]=Number(v);}});
-   if(!Object.keys(payload).length){notify('Is item ke editable columns identify nahi hue. Schema verify karna hoga.');return;}
+    channels.forEach(([label,enabledKeys,priceKeys])=>{const ek=firstKey(item,enabledKeys),pk=firstKey(item,priceKeys);if(ek){const next=booleanValueFor(item[ek],byId('fm-enabled-'+label).checked);if(next!==undefined)payload[ek]=next;}if(pk){const v=byId('fm-price-'+label).value;if(v!==''&&Number.isFinite(Number(v))&&Number(v)>=0)payload[pk]=Number(v);}});
     const saveButton=byId("db-item-save"),errorHost=byId("fm-item-settings-error");
     if(!Object.keys(payload).length){errorHost.textContent="This row has no supported editable columns.";errorHost.hidden=false;return;}
     saveButton.disabled=true;saveButton.textContent="Saving…";errorHost.hidden=true;
