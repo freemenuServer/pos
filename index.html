@@ -72,6 +72,10 @@ main{min-width:0}.topbar{height:72px;background:#fff;border-bottom:1px solid var
 .menu-search-bottom{margin-top:14px;padding-top:12px;border-top:1px solid #d9e7df}
 .menu-search-bottom .field-label{display:block;max-width:100%}
 .menu-search-bottom .field{width:100%;box-sizing:border-box}
+
+/* Clean Menu header: keep the Menu title only; hide restaurant/email/admin controls from this screen. */
+.menu-panel-head .menu-source-controls { display: none !important; }
+#fm-owner-account-email, .menu-sync-status { display: none !important; }
 </style>
 </head>
 <body>
@@ -316,7 +320,7 @@ function openSettings(name,key){
  box.scrollIntoView({behavior:"smooth",block:"start"});
 }
 function openModal(title,body,onSave){
- const backdrop=$("#modal-backdrop");backdrop.classList.toggle("fullscreen-editor",title==="Menu Item Settings");$("#modal-title").textContent=title;$("#modal-body").innerHTML=body;state.modal.save=onSave||null;backdrop.classList.add("open");$("#modal-save").style.display=onSave?"inline-flex":"none";
+ const backdrop=$("#modal-backdrop");backdrop.classList.toggle("fullscreen-editor",title==="Menu Item Settings"||title==="Menu & Inventory");$("#modal-title").textContent=title;$("#modal-body").innerHTML=body;state.modal.save=onSave||null;backdrop.classList.add("open");$("#modal-save").style.display=onSave?"inline-flex":"none";
 }
 function closeModal(){$("#modal-backdrop").classList.remove("open","fullscreen-editor");state.modal.save=null}
 function openItemModal(){openModal("Menu Item On/Off",`<p class="tiny muted" style="margin-top:0">Toggle availability. Unavailable items disappear from the billing menu.</p><div style="display:flex;flex-direction:column;gap:10px">${menu.map(m=>`<label style="display:flex;align-items:center;justify-content:space-between;gap:10px;border:1px solid var(--line);border-radius:9px;padding:10px"><span><strong>${escapeHTML(m.name)}</strong><small class="muted" style="display:block;margin-top:4px">${rupees(m.price)} · ${escapeHTML(m.category)}</small></span><input type="checkbox" class="toggle item-stock-toggle" data-stock="${m.id}" ${m.stock?"checked":""} aria-label="${escapeHTML(m.name)} available"></label>`).join("")}</div>`,()=>{$$(".item-stock-toggle").forEach(el=>{const m=menu.find(x=>x.id===Number(el.dataset.stock));if(m)m.stock=el.checked});renderMenu();toast("Menu availability updated in demo.")})}
@@ -576,14 +580,6 @@ renderOps();renderSettings();renderMenu();renderCart();renderTickets();renderRep
      renderCart();
      if (typeof navigate === "function") navigate("billing");
      byId("fm-owner-account-email")?.remove();
-     const head = document.querySelector(".menu-panel-head");
-     if (head && !byId("fm-owner-account-email")) {
-       const badge = document.createElement("span");
-       badge.id = "fm-owner-account-email";
-       badge.className = "menu-sync-status";
-       badge.textContent = user.email || "Logged in";
-       head.appendChild(badge);
-     }
    } catch (err) {
      console.error("Restaurant POS startup failed:", err);
      showLogin(err.message || "Restaurant data load nahi hua.");
