@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>FreeMenu POS | Restaurant Management</title>
 <script src="https://cdn.tailwindcss.com"></script>
+<script src="config.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
 <style>
@@ -75,7 +76,11 @@ main{min-width:0}.topbar{height:72px;background:#fff;border-bottom:1px solid var
 
 /* Clean Menu header: keep the Menu title only; hide restaurant/email/admin controls from this screen. */
 .menu-panel-head .menu-source-controls { display: none !important; }
-#fm-owner-account-email, .menu-sync-status { display: none !important; }
+ #fm-owner-account-email, .menu-sync-status { display: none !important; }
+ /* Reference layout: compact station header and labeled navigation. */
+ .app{grid-template-columns:168px minmax(0,1fr)}.brand{display:flex;justify-content:flex-start;gap:8px;padding:0 14px}.brand i{font-size:20px}.nav{padding:10px 8px}.navbtn{height:39px;justify-content:flex-start;flex-direction:row;gap:11px;padding:0 11px;font-size:12px;text-align:left}.navbtn i{width:17px;text-align:center;font-size:14px}.sidebar-foot{text-align:left;padding:10px 12px}.topbar{height:64px;padding:0 16px}.topbrand .mark{height:36px;width:36px}.topbrand h1{font-size:16px}.top-actions{gap:6px}.top-quick{border:0;background:#fff;color:#47564d;display:grid;place-items:center;gap:3px;min-width:42px;padding:3px 5px;font-size:9px}.top-quick i{font-size:13px}.top-quick:hover{color:var(--green2);background:#f0fbf5;border-radius:7px}.station-pill,.top-clock{font-size:10px;color:#52665a;white-space:nowrap}.top-clock{color:var(--muted)}.manager-toolbar{display:grid;grid-template-columns:minmax(180px,1fr) 200px 160px;gap:10px;margin:14px 0}.manager-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}.manager-item{display:flex;gap:12px;align-items:center;padding:13px;background:#fff;border:1px solid var(--line);border-radius:11px;min-width:0}.manager-item-copy{flex:1;min-width:0}.manager-item-copy strong{display:block;font-size:12px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.manager-item-copy small{display:block;color:var(--muted);font-size:10px;margin-top:4px}.manager-item-actions{display:flex;align-items:center;gap:8px}.manager-status{font-size:10px;font-weight:700;min-width:66px}.manager-status.off{color:#a64237}.manager-page-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:10px 0 16px}.manager-page-head h2{margin:0;font-size:22px}.manager-page-head p{margin:5px 0 0;color:var(--muted);font-size:11px}.item-settings-wrap{max-width:1120px;margin:0 auto}.item-settings-form{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:15px;background:#fff;border:1px solid var(--line);border-radius:12px;padding:20px}.item-settings-form>.full{grid-column:1/-1}.item-settings-form label{display:flex;flex-direction:column;gap:6px;font-weight:650;font-size:12px;color:#536b5b}.item-settings-form input,.item-settings-form select,.item-settings-form textarea{border:1px solid #d6e3da;border-radius:9px;padding:10px;background:#fff;color:#173327;width:100%}.item-settings-form input[readonly]{background:#f4f7f5;color:#54645a}.settings-detail{scroll-margin-top:76px}.content{padding-top:10px}
+ @media(max-width:1200px){.app{grid-template-columns:150px minmax(0,1fr)}.manager-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.top-clock{display:none}}
+ @media(max-width:760px){.app{grid-template-columns:1fr}.sidebar{width:220px}.navbtn{height:42px}.topbar{height:auto;min-height:60px;padding:9px 10px;align-items:center}.topbrand h1{font-size:15px}.topbrand p{display:none}.top-actions .pill:not(.status),.top-actions .help,.top-actions .top-quick,.station-pill{display:none}.manager-toolbar{grid-template-columns:1fr}.manager-grid{grid-template-columns:1fr}.manager-page-head{align-items:flex-start}.item-settings-form{grid-template-columns:1fr}.item-settings-form>.full{grid-column:auto}.manager-item{align-items:flex-start;flex-wrap:wrap}.manager-item-actions{width:100%;justify-content:flex-end}}
 </style>
 </head>
 <body>
@@ -113,11 +118,20 @@ main{min-width:0}.topbar{height:72px;background:#fff;border-bottom:1px solid var
 <header class="topbar">
  <div class="topbrand"><button class="iconbtn mobile-menu" data-action="menu" aria-label="Open navigation"><i class="fa-solid fa-bars"></i></button><div class="mark"><i class="fa-solid fa-cloud-bolt"></i></div><div><h1>FreeMenu POS</h1><p>Restaurant Management System</p></div></div>
  <div class="top-actions">
-  <button class="pill" data-view="settings"><i class="fa-solid fa-gear"></i> Settings</button>
+   <span class="station-pill">Master Billing Station</span><span class="pill status"><span class="dot"></span>Online</span>
+   <button class="top-quick" data-target="item-onoff" title="Menu availability"><i class="fa-solid fa-toggle-on"></i><span>Item On/Off</span></button>
+   <button class="top-quick" data-action="store-status" title="Store status"><i class="fa-solid fa-store"></i><span id="store-label">Store Open</span></button>
+   <button class="top-quick" data-view="live" title="Live view"><i class="fa-solid fa-tower-broadcast"></i><span>Live View</span></button>
+   <button class="top-quick" data-view="reports" title="Orders"><i class="fa-solid fa-receipt"></i><span>Orders</span></button>
+   <button class="top-quick" data-view="live" title="Alerts"><i class="fa-regular fa-bell"></i><span>Alerts</span></button>
+   <button class="top-quick" data-target="menu-manager" title="Online menu"><i class="fa-solid fa-cloud-arrow-up"></i><span>Online Menu</span></button>
+   <span class="top-clock"><span id="today"></span> · <span id="clock"></span></span>
+   <button class="help" data-action="help"><i class="fa-regular fa-circle-question"></i> Need Help? <span>07960 223544</span></button>
+   <button class="iconbtn" data-view="settings" aria-label="Settings" title="Settings"><i class="fa-solid fa-gear"></i></button>
  </div>
 </header>
 <div class="content">
- <div class="tiny muted"><i class="fa-regular fa-calendar"></i> <span id="today"></span> &nbsp; <i class="fa-regular fa-clock"></i> <span id="clock"></span></div></div>
+  
 
  <section id="view-operations" class="view active">
   <div class="pagehead"><div><div class="eyebrow">RESTAURANT CONTROL CENTER</div><h2>Operations Dashboard</h2><p>Manage orders, billing, inventory, payments and outlet systems from one place.</p></div><button class="btn primary" data-view="billing"><i class="fa-solid fa-plus"></i> New Bill</button></div>
@@ -190,8 +204,32 @@ main{min-width:0}.topbar{height:72px;background:#fff;border-bottom:1px solid var
   <section class="settings-group"><div class="settings-group-head"><h3>Billing Screen</h3><p>Customize how your counter billing workflow behaves.</p></div><div class="settings-grid" id="settings-billing"></div></section>
   <section class="settings-group"><div class="settings-group-head"><h3>Online/Advance Order</h3><p>Manage incoming orders and online acceptance rules.</p></div><div class="settings-grid" id="settings-online"></div></section>
   <section class="settings-group"><div class="settings-group-head"><h3>System Setting</h3><p>Configure station sync and connected POS devices.</p></div><div class="settings-grid" id="settings-system"></div></section>
-  <div id="settings-detail" class="settings-detail" hidden></div>
  </section>
+
+  <section id="view-menu-manager" class="view">
+   <div class="manager-page-head"><div><div class="eyebrow">OPERATIONS · MENU & INVENTORY</div><h2>Menu & Inventory</h2><p>Live restaurant menu from Supabase. Availability changes are saved to the existing item row.</p></div><div class="chips"><button class="btn" data-action="menu-back"><i class="fa-solid fa-arrow-left"></i> Operations</button><button class="btn" id="fm-manager-refresh" type="button"><i class="fa-solid fa-rotate"></i> Refresh</button></div></div>
+   <section class="section"><div class="section-head"><div><h3 id="fm-manager-restaurant">Restaurant menu</h3><p id="fm-manager-count">Loading menu…</p></div></div><div class="panel-body"><div class="manager-toolbar"><input class="field" id="fm-manager-search" placeholder="Search item or category…" autocomplete="off"><select class="field" id="fm-manager-category" aria-label="Filter by category"><option value="All">All categories</option></select><select class="field" id="fm-manager-status" aria-label="Filter availability"><option value="All">All availability</option><option value="Available">Available</option><option value="Unavailable">Unavailable</option></select></div><div class="category-row" id="fm-manager-categories"></div><div id="fm-manager-error" role="alert" hidden></div><div class="manager-grid" id="fm-manager-grid" aria-live="polite"></div></div></section>
+  </section>
+
+  <section id="view-menu-item-settings" class="view">
+   <div class="manager-page-head"><div><div class="eyebrow">MENU & INVENTORY · ITEM SETTINGS</div><h2>Menu Item Settings</h2><p>Update only fields already present on this Supabase item.</p></div><button class="btn" data-action="item-settings-back"><i class="fa-solid fa-arrow-left"></i> Back to Menu</button></div>
+   <div class="item-settings-wrap"><div id="fm-item-settings-error" class="empty" role="alert" hidden></div><form id="db-menu-form" class="item-settings-form">
+    <div class="full" style="padding:12px;background:#f2fbf6;border-radius:9px"><strong id="db-item-heading"></strong><div class="muted tiny">Name and Base Item Price are read-only.</div></div>
+    <label>Name<input id="db-item-name" readonly></label><label>Base Item Price<input id="db-item-base-price" readonly></label>
+    <label>Category<input id="db-item-category" maxlength="80"></label><label>Short Code<input id="db-short-code"></label><label>Short Code 2<input id="db-short-code-2"></label>
+    <label>Veg / Non-Veg / Egg<select id="db-item-veg"><option value="veg">Veg</option><option value="nonveg">Non-Veg</option><option value="egg">Egg</option></select></label>
+    <div class="full"><strong>Order Type</strong><div style="display:flex;gap:18px;flex-wrap:wrap;margin-top:8px"><label style="display:block"><input type="checkbox" id="fm-order-delivery"> Delivery</label><label style="display:block"><input type="checkbox" id="fm-order-pickup"> Pick Up</label></div></div>
+    <label>HSN Code<input id="db-hsn"></label><label>Description<textarea id="db-item-description" rows="3"></textarea></label>
+    <div class="full"><strong>Tax & Discount</strong><div style="display:flex;gap:24px;flex-wrap:wrap;margin-top:8px"><label style="display:block"><input type="checkbox" id="db-ignore-tax"> Ignore Tax</label><label style="display:block"><input type="checkbox" id="db-ignore-discount"> Ignore Discount</label></div></div>
+    <div class="full"><strong>Channel Prices & Availability</strong><div id="fm-item-channels"></div></div>
+    <div class="full" style="display:flex;justify-content:flex-end;gap:8px"><button type="button" class="btn" data-action="item-settings-back">Cancel</button><button type="submit" class="btn primary" id="db-item-save">Save Settings</button></div>
+   </form></div>
+  </section>
+
+  <section id="view-setting-detail" class="view">
+   <div class="manager-page-head"><div><div class="eyebrow">SETTINGS</div><h2 id="settings-detail-title">Settings Detail</h2><p id="settings-detail-subtitle">Configure this POS setting.</p></div><button class="btn" data-action="settings-back"><i class="fa-solid fa-arrow-left"></i> Back to Settings</button></div>
+   <div id="settings-detail" class="settings-detail settings-page" hidden></div>
+  </section>
 </div>
 </main>
 </div>
@@ -207,26 +245,14 @@ const state={
   {id:"KOT-1043",order:"ORD-7786",mode:"Takeaway",source:"Swiggy",table:"Pickup",customer:"Online customer",note:"Pack carefully",status:"Preparing",created:Date.now()-6*60000,total:641,items:[{name:"Dal Makhani",qty:1},{name:"Paneer Lababdar",qty:1},{name:"Tandoori Roti",qty:6}]}
  ],invoices:[],held:[],nextInvoice:1001,nextKot:1044,itemsOn:{},modal:{save:null}
 };
-const categories=["All","Starters","Main Course","Breads","Rice","Beverages","Desserts"];
-const menu=[
- {id:1,name:"Paneer Butter Masala",category:"Main Course",price:220,veg:true,icon:"fa-bowl-food",stock:true},
- {id:2,name:"Chicken Tikka",category:"Starters",price:260,veg:false,icon:"fa-drumstick-bite",stock:true},
- {id:3,name:"Dal Makhani",category:"Main Course",price:180,veg:true,icon:"fa-bowl-rice",stock:true},
- {id:4,name:"Tandoori Roti",category:"Breads",price:30,veg:true,icon:"fa-cookie-bite",stock:true},
- {id:5,name:"Garlic Naan",category:"Breads",price:40,veg:true,icon:"fa-bread-slice",stock:true},
- {id:6,name:"Jeera Rice",category:"Rice",price:120,veg:true,icon:"fa-bowl-rice",stock:true},
- {id:7,name:"Veg Spring Roll",category:"Starters",price:150,veg:true,icon:"fa-leaf",stock:true},
- {id:8,name:"Masala Fries",category:"Starters",price:110,veg:true,icon:"fa-french-fries",stock:true},
- {id:9,name:"Cold Coffee",category:"Beverages",price:130,veg:true,icon:"fa-mug-hot",stock:true},
- {id:10,name:"Gulab Jamun",category:"Desserts",price:80,veg:true,icon:"fa-cookie",stock:true},
- {id:11,name:"Veg Pulao",category:"Rice",price:160,veg:true,icon:"fa-bowl-rice",stock:true},
- {id:12,name:"Butter Chicken",category:"Main Course",price:290,veg:false,icon:"fa-drumstick-bite",stock:true}
-];
+// Menu rows are supplied by the authenticated restaurant's Supabase query below.
+const categories=["All"];
+const menu=[];
 const $=s=>document.querySelector(s), $$=s=>Array.from(document.querySelectorAll(s));
 const rupees=n=>"₹"+Number(n||0).toLocaleString("en-IN",{minimumFractionDigits:2,maximumFractionDigits:2});
 const escapeHTML=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 function toast(msg){const el=$("#toast");el.textContent=msg;el.classList.add("show");clearTimeout(toast.timer);toast.timer=setTimeout(()=>el.classList.remove("show"),2600)}
-function navigate(view){if(!$("#view-"+view))return;state.view=view;$$(".view").forEach(x=>x.classList.toggle("active",x.id==="view-"+view));$$(".navbtn[data-view]").forEach(x=>x.classList.toggle("active",x.dataset.view===view));$("#sidebar").classList.remove("open");if(view==="billing"){renderMenu();renderCart()}if(view==="live")renderTickets();if(view==="reports")renderReports();window.scrollTo({top:0,behavior:"smooth"})}
+function navigate(view){if(!$("#view-"+view))return;state.view=view;$$(".view").forEach(x=>x.classList.toggle("active",x.id==="view-"+view));const navView=view==="setting-detail"?"settings":view.startsWith("menu-")?"operations":view;$$ (".navbtn[data-view]").forEach(x=>x.classList.toggle("active",x.dataset.view===navView));$("#sidebar").classList.remove("open");if(view==="billing"){renderMenu();renderCart()}if(view==="live")renderTickets();if(view==="reports")renderReports();window.scrollTo({top:0,behavior:"smooth"})}
 function updateClock(){const d=new Date();$("#today").textContent=d.toLocaleDateString("en-IN",{day:"2-digit",month:"short",year:"numeric"});$("#clock").textContent=d.toLocaleTimeString("en-IN",{hour:"2-digit",minute:"2-digit"})}
 function renderOps(){
  const groups={
@@ -316,14 +342,15 @@ function openSettings(name,key){
  connect:[["Device role","select","Captain"],["Pairing code","text","FM-482-106"],["Connection mode","select","Local network"]]
  };
  const fields=config[key]||[["Enabled","toggle","yes"],["Configuration value","text",""]];
- box.hidden=false;box.innerHTML=`<div style="display:flex;justify-content:space-between;gap:12px;align-items:start;flex-wrap:wrap"><div><h3>${escapeHTML(name)}</h3><p>Prototype settings are kept in this browser session only; no server is connected.</p></div><span class="badge">DEMO CONFIG</span></div><div class="settings-form">${fields.map(([label,type,value],i)=>{const id="setting-"+key+"-"+i;if(type==="toggle")return `<label style="display:flex;align-items:center;justify-content:space-between;gap:12px">${escapeHTML(label)}<input id="${id}" type="checkbox" class="toggle" ${value==="yes"?"checked":""}></label>`;if(type==="select"){const opts=label.toLowerCase().includes("printer")?["80mm Thermal Printer","58mm Thermal Printer","Browser Print"]:label==="Rounding rule"?["Nearest rupee","No rounding","Round up","Round down"]:label==="Device role"?["Captain","Secondary POS","Cashier"]:["Local network","Cloud pairing"];return `<label>${escapeHTML(label)}<select id="${id}">${opts.map(o=>`<option ${o===value?"selected":""}>${escapeHTML(o)}</option>`).join("")}</select></label>`}return `<label>${escapeHTML(label)}<input id="${id}" type="${type}" value="${escapeHTML(value)}"></label>`}).join("")}</div><div style="display:flex;gap:8px;margin-top:15px"><button class="btn primary" data-action="save-settings" data-setting-name="${escapeHTML(name)}">Save Settings</button>${key==="connect"?'<button class="btn" data-action="pair-device">Generate Pairing QR</button>':""}</div>`;
- box.scrollIntoView({behavior:"smooth",block:"start"});
+ let saved={};try{saved=JSON.parse(localStorage.getItem("fm_pos_ui_settings_v1")||"{}")}catch{}
+  box.hidden=false;box.innerHTML=`<div><h3>${escapeHTML(name)}</h3><p>These POS display preferences are stored separately in this browser and do not update restaurant or menu data.</p><span class="badge">LOCAL POS PREFERENCE</span></div><form id="pos-settings-form" data-setting-key="${escapeHTML(key)}" data-setting-name="${escapeHTML(name)}"><div class="settings-form">${fields.map(([label,type,value],i)=>{const id="setting-"+key+"-"+i;const current=Object.prototype.hasOwnProperty.call(saved,key+":"+i)?saved[key+":"+i]:value;if(type==="toggle")return `<label style="display:flex;align-items:center;justify-content:space-between;gap:12px">${escapeHTML(label)}<input id="${id}" type="checkbox" class="toggle" ${current===true||current==="yes"?"checked":""}></label>`;if(type==="select"){const opts=label.toLowerCase().includes("printer")?["80mm Thermal Printer","58mm Thermal Printer","Browser Print"]:label==="Rounding rule"?["Nearest rupee","No rounding","Round up","Round down"]:label==="Device role"?["Captain","Secondary POS","Cashier"]:["Local network","Cloud pairing"];return `<label>${escapeHTML(label)}<select id="${id}">${opts.map(o=>`<option ${o===current?"selected":""}>${escapeHTML(o)}</option>`).join("")}</select></label>`}return `<label>${escapeHTML(label)}<input id="${id}" type="${type}" value="${escapeHTML(current)}"></label>`}).join("")}</div><div style="display:flex;gap:8px;margin-top:15px"><button class="btn primary" type="submit">Save Settings</button>${key==="connect"?'<button class="btn" type="button" data-action="pair-device">Generate Pairing QR</button>':""}</div></form>`;
+  const title=$("#settings-detail-title");if(title)title.textContent=name;const subtitle=$("#settings-detail-subtitle");if(subtitle)subtitle.textContent="Configure "+name.toLowerCase()+" for this POS device.";navigate("setting-detail");
 }
 function openModal(title,body,onSave){
  const backdrop=$("#modal-backdrop");backdrop.classList.toggle("fullscreen-editor",title==="Menu Item Settings"||title==="Menu & Inventory");$("#modal-title").textContent=title;$("#modal-body").innerHTML=body;state.modal.save=onSave||null;backdrop.classList.add("open");$("#modal-save").style.display=onSave?"inline-flex":"none";
 }
 function closeModal(){$("#modal-backdrop").classList.remove("open","fullscreen-editor");state.modal.save=null}
-function openItemModal(){openModal("Menu Item On/Off",`<p class="tiny muted" style="margin-top:0">Toggle availability. Unavailable items disappear from the billing menu.</p><div style="display:flex;flex-direction:column;gap:10px">${menu.map(m=>`<label style="display:flex;align-items:center;justify-content:space-between;gap:10px;border:1px solid var(--line);border-radius:9px;padding:10px"><span><strong>${escapeHTML(m.name)}</strong><small class="muted" style="display:block;margin-top:4px">${rupees(m.price)} · ${escapeHTML(m.category)}</small></span><input type="checkbox" class="toggle item-stock-toggle" data-stock="${m.id}" ${m.stock?"checked":""} aria-label="${escapeHTML(m.name)} available"></label>`).join("")}</div>`,()=>{$$(".item-stock-toggle").forEach(el=>{const m=menu.find(x=>x.id===Number(el.dataset.stock));if(m)m.stock=el.checked});renderMenu();toast("Menu availability updated in demo.")})}
+function openItemModal(){if(window.fmOpenMenuManager)window.fmOpenMenuManager();else toast("Menu is loading from Supabase.")}
 function openReport(name){const inv=state.invoices;let body=`<p>${escapeHTML(name)} — demo report</p><div class="stat-grid" style="grid-template-columns:repeat(2,minmax(0,1fr))"><div class="stat"><div class="label">Invoices in session</div><div class="value">${inv.length}</div></div><div class="stat"><div class="label">Session sales</div><div class="value" style="font-size:18px">${rupees(inv.reduce((s,x)=>s+x.total,0))}</div></div></div><p class="tiny muted">Pre-populated dashboard figures are illustrative. Only invoices created during this browser session are actual demo records.</p>`;openModal(name,body)}
 function exportCSV(){const rows=[["Invoice","Time","Mode","Payment","Items","Subtotal","Discount","CGST","SGST","Total"],...state.invoices.map(i=>[i.id,i.time,i.mode,i.payment,i.items,i.subtotal.toFixed(2),i.discount.toFixed(2),i.cgst.toFixed(2),i.sgst.toFixed(2),i.total.toFixed(2)])];const csv=rows.map(r=>r.map(v=>`"${String(v).replace(/"/g,'""')}"`).join(",")).join("\r\n");const blob=new Blob([csv],{type:"text/csv;charset=utf-8;"});const url=URL.createObjectURL(blob);const a=document.createElement("a");a.href=url;a.download="freemenu-pos-invoices.csv";a.click();URL.revokeObjectURL(url);toast("Invoice CSV exported.")}
 function targetAction(target){if(!target)return;if(target==="billing"||target==="live"||target==="reports"||target==="settings"){navigate(target);return}if(target==="item-onoff"){openItemModal();return}if(target==="menu-manager"){if(window.fmOpenMenuManager)window.fmOpenMenuManager();else openModal("Menu","Supabase menu integration load hone ka intezar karein.");return}if(target==="help"){openModal("FreeMenu POS Help",'<p>Use Billing to create a demo order, Send to KOT to add a kitchen ticket, and Live View to move it through preparation.</p><p class="tiny muted">No live support service is connected in this standalone prototype.</p>');return}if(target==="sync"){toast("Demo sync checked. No backend is connected.");return}if(target.startsWith("setting:")){navigate("settings");const name=target.slice(8);const pair=Object.values(settingData).flat().find(x=>x[0]===name);openSettings(name,pair?pair[3]:"display");return}if(target.startsWith("report:")){openReport(target.slice(7));return}openReport(target)}
@@ -333,6 +360,10 @@ document.addEventListener("click",e=>{
  const target=e.target.closest("[data-target]");if(target){targetAction(target.dataset.target);return}
  const action=e.target.closest("[data-action]");if(action){const a=action.dataset.action;
   if(a==="menu")$("#sidebar").classList.toggle("open");
+  else if(a==="menu-back")navigate("operations");
+  else if(a==="item-settings-back"){navigate("menu-manager");if(window.fmRefreshMenuManager)window.fmRefreshMenuManager();}
+  else if(a==="settings-back")navigate("settings");
+  else if(a==="help")openModal("FreeMenu POS Help",'<p>Use Operations to open billing, menu management and settings. Menu items are loaded from your authenticated restaurant in Supabase.</p><p class="tiny muted">For login or menu access errors, contact support at 07960 223544.</p>');
   else if(a==="check-updates")toast("You are using prototype version 1.0.0.");
   else if(a==="logout")openModal("Logout",'<p>This standalone prototype has no signed-in session to end.</p>');
   else if(a==="store-status"){state.storeOpen=!state.storeOpen;$("#store-label").textContent=state.storeOpen?"Store Open":"Store Closed";toast(state.storeOpen?"Store marked open in demo.":"Store marked closed in demo.");}
@@ -376,15 +407,18 @@ renderOps();renderSettings();renderMenu();renderCart();renderTickets();renderRep
    belonging to the selected restaurant. Requires correct Supabase RLS policies. */
 (() => {
  "use strict";
- const FM_SUPABASE_URL = "https://pfsrpowopbrevocwsuii.supabase.co";
- const FM_SUPABASE_PUBLISHABLE_KEY = "sb_publishable_r3K8YKzV0ZHQxvXfkNimkw_e5E8EPmE";
- const db = window.supabase?.createClient(FM_SUPABASE_URL, FM_SUPABASE_PUBLISHABLE_KEY);
+ const FM_SUPABASE_URL = window.FREEMENU_CONFIG?.url || "";
+ const FM_SUPABASE_PUBLISHABLE_KEY = window.FREEMENU_CONFIG?.anonKey || "";
+ const db = window.supabase && FM_SUPABASE_URL && FM_SUPABASE_PUBLISHABLE_KEY
+   ? window.supabase.createClient(FM_SUPABASE_URL, FM_SUPABASE_PUBLISHABLE_KEY)
+   : null;
  let outlets = [], liveMenu = [], selectedOutlet = "", editingItem = null;
  const byId = id => document.getElementById(id);
  const safe = v => String(v ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
  const notify = msg => typeof window.toast === "function" ? window.toast(msg) : alert(msg);
  const getRestaurantName = r => r.name || r.restaurant_name || r.title || ("Restaurant " + String(r.id).slice(0,8));
  const firstPrice = (...values) => { const v=values.find(x=>x!==null&&x!==undefined&&x!==""); return v===undefined?0:Number(v)||0; };
+const falseLike = value => value===false || value===0 || ["false","0","no","off","unavailable","out_of_stock"].includes(String(value??"").trim().toLowerCase());
  const halfPriceOf = m => firstPrice(m.price_half,m.half_price,m.half,m.priceHalf);
  const fullPriceOf = m => firstPrice(m.price_full,m.full_price,m.full,m.priceFull,m.price);
  const priceOf = m => firstPrice(m.price,m.price_full,m.full_price,m.price_half,m.half_price,m.price_quarter);
@@ -401,9 +435,8 @@ renderOps();renderSettings();renderMenu();renderCart();renderTickets();renderRep
      category:categoryOf(m),
      price:priceOf(m),
      veg:isVeg,
-     stock:m.is_available !== false && m.available !== false &&
-       status !== "unavailable" && status !== "out_of_stock" &&
-       m.is_active !== false && m.stock !== false,
+      stock:!falseLike(m.is_available) && !falseLike(m.available) && !falseLike(m.is_active) && !falseLike(m.stock) &&
+      status !== "unavailable" && status !== "out_of_stock",
      icon:"fa-bowl-food"
    };
  };
@@ -443,6 +476,7 @@ renderOps();renderSettings();renderMenu();renderCart();renderTickets();renderRep
    const outlet = outlets.find(r => String(r.id)===String(selectedOutlet));
    const count = liveMenu.length;
    byId("menu-count").textContent = `${count} database item${count===1?"":"s"}${outlet ? " · "+getRestaurantName(outlet):""}`;
+    if(state.view==="menu-manager")renderMenuManager();
  }
  function renderMenu() {
    const categories = ["All", ...new Set(liveMenu.map(m=>m.category).filter(Boolean))];
@@ -470,39 +504,87 @@ renderOps();renderSettings();renderMenu();renderCart();renderTickets();renderRep
  function firstKey(obj, keys) { return keys.find(k => Object.prototype.hasOwnProperty.call(obj || {}, k)); }
  function fieldValue(item, keys, fallback="") { const k=firstKey(item,keys); return k ? item[k] : fallback; }
  function checkValue(item, keys) { const v=fieldValue(item,keys,false); return v===true || v===1 || String(v).toLowerCase()==="true" || String(v).toLowerCase()==="yes" || String(v)==="1"; }
- function openMenuManager() {
-   const search = `<label class="full">Search menu<input id="fm-manager-search" placeholder="Search item or category…"></label>`;
-   const list = () => liveMenu.filter(m=>{const q=(byId("fm-manager-search")?.value||"").toLowerCase();return !q||String(m.name).toLowerCase().includes(q)||String(m.category).toLowerCase().includes(q)}).map(m=>`<div style="display:flex;align-items:center;gap:10px;border:1px solid var(--line);border-radius:10px;padding:11px;margin-top:8px"><div style="flex:1;min-width:0"><strong>${safe(m.name)}</strong><small class="muted" style="display:block">${safe(m.category)} · ${rupees(m.price)} · ${m.stock?'Available':'Unavailable'}</small></div><button class="btn btn-light" type="button" data-manager-edit="${safe(m.id)}"><i class="fa-solid fa-pen"></i> Edit settings</button></div>`).join("")||'<p class="muted">No menu items found.</p>';
-   openModal("Menu & Inventory",`<p class="tiny muted">Live menu from Supabase. Select an item to edit its settings. Name and base price are read-only.</p><div class="db-modal-form">${search}<div class="full" id="fm-manager-list">${list()}</div></div><div style="display:flex;gap:8px;margin-top:14px"><button class="btn btn-light" type="button" id="fm-manager-refresh">Refresh menu</button></div>`);
-   byId("fm-manager-search").addEventListener("input",()=>byId("fm-manager-list").innerHTML=list());
-   byId("fm-manager-refresh").addEventListener("click",async()=>{try{await loadMenu();openMenuManager();notify("Supabase menu refreshed.")}catch(err){notify("Refresh failed: "+err.message)}});
- }
- window.fmOpenMenuManager = openMenuManager;
- function openItemEditor(item=null) {
-   if (!item) { notify("Menu items is screen se add nahi honge. Existing Supabase item select karke edit karein."); return; }
-   editingItem = item;
-   const veg = String(item.item_type||"").toLowerCase()==="egg" ? "egg" : (item.is_veg===false || ["nonveg","non-veg","non veg"].includes(String(item.item_type||"").toLowerCase()) ? "nonveg":"veg");
-   const orderTypes = Array.isArray(item.order_types) ? item.order_types : String(item.order_type||"").split(/[;,]/).map(x=>x.trim()).filter(Boolean);
-   const channel = (label, enabledKeys, priceKeys) => { const ek=firstKey(item,enabledKeys), pk=firstKey(item,priceKeys); return `<div style="display:grid;grid-template-columns:minmax(0,1fr) 110px auto;gap:8px;align-items:center;border-bottom:1px solid var(--line);padding:8px 0"><label style="display:flex;align-items:center;gap:8px"><input type="checkbox" id="fm-enabled-${label}" ${ek&&checkValue(item,enabledKeys)?'checked':''} ${ek?'':'disabled'}>${label}</label><input id="fm-price-${label}" type="number" min="0" step="0.01" value="${safe(pk?item[pk]:"")}" placeholder="Price" ${pk?'':'disabled'}><small class="muted">${ek&&pk?'Editable':ek?'Toggle field missing price':'Not in schema'}</small></div>`; };
-   const body = `<form id="db-menu-form" class="db-modal-form">
-    <div class="full" style="padding:10px;background:#f2fbf6;border-radius:9px"><strong>${safe(item.name||item.item_name||'Unnamed item')}</strong><div class="muted tiny">Name: read-only · Base price: read-only (${rupees(priceOf(item))})</div></div>
-    <label>Category<input id="db-item-category" value="${safe(categoryOf(item))}" maxlength="80"></label>
-    <label>Short Code<input id="db-short-code" value="${safe(fieldValue(item,['short_code','shortcode','item_code','code']))}"></label>
-    <label>Short Code 2<input id="db-short-code-2" value="${safe(fieldValue(item,['short_code_2','shortcode2','short_code2','item_code_2','code2']))}"></label>
-    <label>Choice<select id="db-item-veg"><option value="veg" ${veg==='veg'?'selected':''}>Veg</option><option value="nonveg" ${veg==='nonveg'?'selected':''}>Non-Veg</option><option value="egg" ${veg==='egg'?'selected':''}>Egg</option></select></label>
-    <div class="full"><strong>Order Type</strong><div style="display:flex;gap:18px;flex-wrap:wrap;margin-top:8px"><label><input type="checkbox" id="fm-order-delivery" ${orderTypes.some(x=>/delivery/i.test(x))?'checked':''} ${firstKey(item,['order_type','order_types'])?'':'disabled'}> Delivery</label><label><input type="checkbox" id="fm-order-pickup" ${orderTypes.some(x=>/pick.?up|parcel/i.test(x))?'checked':''} ${firstKey(item,['order_type','order_types'])?'':'disabled'}> Pick Up</label></div></div>
-    <label>HSN Code<input id="db-hsn" value="${safe(fieldValue(item,['hsn_code','hsn']))}"></label>
-    <label>Description<textarea id="db-item-description" rows="3">${safe(fieldValue(item,['description','details']))}</textarea></label>
-    <div class="full"><strong>Tax & Discount</strong><div style="display:flex;gap:24px;flex-wrap:wrap;margin-top:8px"><label><input type="checkbox" id="db-ignore-tax" ${checkValue(item,['ignore_tax','is_tax_ignored'])?'checked':''} ${firstKey(item,['ignore_tax','is_tax_ignored'])?'':'disabled'}> Ignore Tax</label><label><input type="checkbox" id="db-ignore-discount" ${checkValue(item,['ignore_discount','is_discount_ignored'])?'checked':''} ${firstKey(item,['ignore_discount','is_discount_ignored'])?'':'disabled'}> Ignore Discount</label></div></div>
-    <div class="full"><strong>Channel Prices & Availability</strong>${channel('Home Delivery',['home_delivery_enabled','is_home_delivery_enabled','home_delivery','delivery_enabled'],['home_delivery_price','delivery_price'])}${channel('Zomato',['zomato_enabled','is_zomato_enabled'],['zomato_price'])}${channel('Parcel',['parcel_enabled','is_parcel_enabled','parcel'],['parcel_price'])}${channel('Swiggy',['swiggy_enabled','is_swiggy_enabled'],['swiggy_price'])}${channel('Ownly',['ownly_enabled','is_ownly_enabled'],['ownly_price'])}</div>
-    <div class="full" style="display:flex;justify-content:flex-end;gap:8px"><button type="button" class="btn btn-light" data-db-cancel>Cancel</button><button type="submit" class="btn btn-primary">Save Settings</button></div>
-   </form>`;
-   openModal("Menu Item Settings", body);
-   byId("db-menu-form").addEventListener("submit", saveItem);
- }
+  function renderMenuManager() {
+    const search=(byId("fm-manager-search")?.value||"").trim().toLowerCase();
+    const category=byId("fm-manager-category")?.value||"All";
+    const availability=byId("fm-manager-status")?.value||"All";
+    const categories=[...new Set(liveMenu.map(m=>m.category).filter(Boolean))].sort((a,b)=>a.localeCompare(b));
+    const select=byId("fm-manager-category");
+    if(select){const current=category;select.innerHTML='<option value="All">All categories</option>'+categories.map(c=>`<option value="${safe(c)}">${safe(c)}</option>`).join("");select.value=categories.includes(current)?current:"All";}
+    const catHost=byId("fm-manager-categories");
+    if(catHost)catHost.innerHTML=["All",...categories].map(c=>`<button class="chip ${category===c?"active":""}" type="button" data-manager-category="${safe(c)}">${safe(c)}</button>`).join("");
+    const filtered=liveMenu.filter(m=>{
+      const matchesSearch=!search||`${m.name} ${m.category}`.toLowerCase().includes(search);
+      const matchesCategory=category==="All"||m.category===category;
+      const matchesAvailability=availability==="All"||(availability==="Available"?m.stock:!m.stock);
+      return matchesSearch&&matchesCategory&&matchesAvailability;
+    });
+    const host=byId("fm-manager-grid");
+    if(host)host.innerHTML=filtered.map(m=>{
+      const key=firstKey(m,["is_available","available","is_active","stock","status"]);
+      const canToggle=Boolean(key);
+      return `<article class="manager-item"><div class="manager-item-copy"><strong>${safe(m.name)}</strong><small>${safe(m.category)} · ${rupees(m.price)}${m.short_code?" · "+safe(m.short_code):""}</small></div><div class="manager-item-actions"><span class="manager-status ${m.stock?"":"off"}">${m.stock?"Available":"Unavailable"}</span><input class="toggle" type="checkbox" data-manager-toggle="${safe(m.id)}" ${m.stock?"checked":""} ${canToggle?"":"disabled"} aria-label="${safe(m.name)} availability" title="${canToggle?"Save availability to Supabase":"No supported availability field exists on this row"}"><button class="btn" type="button" data-manager-edit="${safe(m.id)}"><i class="fa-solid fa-pen"></i> Edit</button></div></article>`;
+    }).join("")||'<div class="empty" style="grid-column:1/-1">No menu items match these filters.</div>';
+    const count=byId("fm-manager-count");if(count)count.textContent=`${liveMenu.length} item${liveMenu.length===1?"":"s"} from Supabase · ${filtered.length} shown`;
+    const restaurant=outlets.find(r=>String(r.id)===String(selectedOutlet));const heading=byId("fm-manager-restaurant");if(heading)heading.textContent=restaurant?getRestaurantName(restaurant):"Restaurant menu";
+  }
+  window.fmRefreshMenuManager = renderMenuManager;
+  function openMenuManager() {
+    navigate("menu-manager");
+    renderMenuManager();
+  }
+  window.fmOpenMenuManager = openMenuManager;
+  async function saveAvailability(item,checked) {
+    const key=firstKey(item,["is_available","available","is_active","stock","status"]);
+    if(!key){notify("Availability cannot be changed: this row has no supported availability field.");return;}
+    let value=checked;
+    if(key==="status")value=checked?"available":"unavailable";
+    else if(typeof item[key]==="string")value=checked?"true":"false";
+    const host=byId("fm-manager-grid");if(host)host.setAttribute("aria-busy","true");
+    try{
+      const {error}=await db.from("menu_items").update({[key]:value}).eq("id",item.id).eq("restaurant_id",selectedOutlet).select("id").maybeSingle();
+      if(error)throw error;
+      await loadMenu();renderMenuManager();notify("Availability saved to Supabase.");
+    }catch(err){console.error("Menu availability update failed",err);notify("Availability was not saved: "+err.message);renderMenuManager();}
+    finally{if(host)host.removeAttribute("aria-busy");}
+  }
+  function openItemEditor(item=null) {
+    if (!item) { notify("Select an existing Supabase menu item to edit."); return; }
+    editingItem = item;
+    const veg = String(item.item_type||"").toLowerCase()==="egg" ? "egg" : (item.is_veg===false || ["nonveg","non-veg","non veg"].includes(String(item.item_type||"").toLowerCase()) ? "nonveg":"veg");
+    const orderTypes = Array.isArray(item.order_types) ? item.order_types : String(item.order_type||"").split(/[;,]/).map(x=>x.trim()).filter(Boolean);
+    byId("db-item-heading").textContent=item.name||item.item_name||"Unnamed item";
+    byId("db-item-name").value=item.name||item.item_name||"";
+    byId("db-item-base-price").value=String(priceOf(item));
+    byId("db-item-category").value=categoryOf(item);
+    byId("db-short-code").value=fieldValue(item,["short_code","shortcode","item_code","code"]);
+    byId("db-short-code-2").value=fieldValue(item,["short_code_2","shortcode2","short_code2","item_code_2","code2"]);
+    byId("db-item-veg").value=veg;
+    byId("db-item-category").disabled=!firstKey(item,["category","cat"]);
+    byId("db-short-code").disabled=!firstKey(item,["short_code","shortcode","item_code","code"]);
+    byId("db-short-code-2").disabled=!firstKey(item,["short_code_2","shortcode2","short_code2","item_code_2","code2"]);
+    byId("db-item-veg").disabled=!firstKey(item,["item_type","is_veg","veg"]);
+    byId("fm-order-delivery").checked=orderTypes.some(x=>/delivery/i.test(x));
+    byId("fm-order-pickup").checked=orderTypes.some(x=>/pick.?up|parcel/i.test(x));
+    byId("fm-order-delivery").disabled=!firstKey(item,["order_type","order_types"]);
+    byId("fm-order-pickup").disabled=!firstKey(item,["order_type","order_types"]);
+    byId("db-hsn").value=fieldValue(item,["hsn_code","hsn"]);
+    byId("db-item-description").value=fieldValue(item,["description","details"]);
+    byId("db-hsn").disabled=!firstKey(item,["hsn_code","hsn"]);
+    byId("db-item-description").disabled=!firstKey(item,["description","details"]);
+    byId("db-ignore-tax").checked=checkValue(item,["ignore_tax","is_tax_ignored"]);
+    byId("db-ignore-discount").checked=checkValue(item,["ignore_discount","is_discount_ignored"]);
+    byId("db-ignore-tax").disabled=!firstKey(item,["ignore_tax","is_tax_ignored"]);
+    byId("db-ignore-discount").disabled=!firstKey(item,["ignore_discount","is_discount_ignored"]);
+    const channel = (label, enabledKeys, priceKeys) => { const ek=firstKey(item,enabledKeys), pk=firstKey(item,priceKeys); return `<div style="display:grid;grid-template-columns:minmax(0,1fr) 110px auto;gap:8px;align-items:center;border-bottom:1px solid var(--line);padding:8px 0"><label style="display:flex;align-items:center;gap:8px"><input type="checkbox" id="fm-enabled-${label}" ${ek&&checkValue(item,enabledKeys)?"checked":""} ${ek?"":"disabled"}>${label}</label><input id="fm-price-${label}" type="number" min="0" step="0.01" value="${safe(pk?item[pk]:"")}" placeholder="Price" ${pk?"":"disabled"}><small class="muted">${ek&&pk?"Editable":ek?"No price field on this row":pk?"No availability field on this row":"Not supported by this row"}</small></div>`; };
+    byId("fm-item-channels").innerHTML=[channel("Home Delivery",["home_delivery_enabled","is_home_delivery_enabled","home_delivery","delivery_enabled"],["home_delivery_price","delivery_price"]),channel("Zomato",["zomato_enabled","is_zomato_enabled"],["zomato_price"]),channel("Parcel",["parcel_enabled","is_parcel_enabled","parcel"],["parcel_price"]),channel("Swiggy",["swiggy_enabled","is_swiggy_enabled"],["swiggy_price"]),channel("Ownly",["ownly_enabled","is_ownly_enabled"],["ownly_price"])].join("");
+    byId("fm-item-settings-error").hidden=true;
+    byId("db-item-save").disabled=false;byId("db-item-save").textContent="Save Settings";
+    navigate("menu-item-settings");
+  }
  function saveItem(e) {
    e.preventDefault();
-   const item=editingItem; if(!item) return;
+    const item=editingItem; if(!item) return;
    const payload={};
    const setExisting=(keys,value)=>{const k=firstKey(item,keys);if(k)payload[k]=value;};
    const cat=byId('db-item-category').value.trim(); setExisting(['category','cat'],cat);
@@ -512,7 +594,7 @@ renderOps();renderSettings();renderMenu();renderCart();renderTickets();renderRep
    setExisting(['item_type'],choice==='egg'?'egg':choice==='nonveg'?'nonveg':'veg');
    setExisting(['is_veg','veg'],choice==='veg');
    const orderKey=firstKey(item,['order_types','order_type']);
-   if(orderKey){const selected=[];if(byId('fm-order-delivery').checked)selected.push('Delivery');if(byId('fm-order-pickup').checked)selected.push('Pick Up');payload[orderKey]=Array.isArray(item[orderKey])?selected.join(', '):selected.join(', ');}
+    if(orderKey){const selected=[];if(byId('fm-order-delivery').checked)selected.push('Delivery');if(byId('fm-order-pickup').checked)selected.push('Pick Up');payload[orderKey]=Array.isArray(item[orderKey])?selected:selected.join(', ');}
    setExisting(['hsn_code','hsn'],byId('db-hsn').value.trim());
    setExisting(['description','details'],byId('db-item-description').value.trim());
    setExisting(['ignore_tax','is_tax_ignored'],byId('db-ignore-tax').checked);
@@ -520,7 +602,10 @@ renderOps();renderSettings();renderMenu();renderCart();renderTickets();renderRep
    const channels=[['Home Delivery',['home_delivery_enabled','is_home_delivery_enabled','home_delivery','delivery_enabled'],['home_delivery_price','delivery_price']],['Zomato',['zomato_enabled','is_zomato_enabled'],['zomato_price']],['Parcel',['parcel_enabled','is_parcel_enabled','parcel'],['parcel_price']],['Swiggy',['swiggy_enabled','is_swiggy_enabled'],['swiggy_price']],['Ownly',['ownly_enabled','is_ownly_enabled'],['ownly_price']]];
    channels.forEach(([label,enabledKeys,priceKeys])=>{const ek=firstKey(item,enabledKeys),pk=firstKey(item,priceKeys);if(ek)payload[ek]=byId('fm-enabled-'+label).checked;if(pk){const v=byId('fm-price-'+label).value;if(v!==''&&Number.isFinite(Number(v))&&Number(v)>=0)payload[pk]=Number(v);}});
    if(!Object.keys(payload).length){notify('Is item ke editable columns identify nahi hue. Schema verify karna hoga.');return;}
-   (async()=>{const {error}=await db.from('menu_items').update(payload).eq('id',item.id).eq('restaurant_id',item.restaurant_id);if(error){console.error('Supabase menu update failed',error);notify('Save nahi hua: '+error.message);return;}closeModal();await loadMenu();notify('Settings Supabase mein save ho gayi. Name aur base price change nahi kiye gaye.');})();
+    const saveButton=byId("db-item-save"),errorHost=byId("fm-item-settings-error");
+    if(!Object.keys(payload).length){errorHost.textContent="This row has no supported editable columns.";errorHost.hidden=false;return;}
+    saveButton.disabled=true;saveButton.textContent="Saving…";errorHost.hidden=true;
+    (async()=>{try{const {data,error}=await db.from("menu_items").update(payload).eq("id",item.id).eq("restaurant_id",selectedOutlet).select("id").maybeSingle();if(error)throw error;if(!data)throw new Error("No row was updated. Check restaurant ownership and Supabase RLS policies.");await loadMenu();navigate("menu-manager");notify("Menu item settings saved.");}catch(err){console.error("Supabase menu update failed",err);errorHost.textContent="Save failed: "+err.message;errorHost.hidden=false;saveButton.disabled=false;saveButton.textContent="Save Settings";}})();
  }
  function addDbItem(id, variant="Regular") {
    const m = liveMenu.find(x=>String(x.id)===String(id));
@@ -534,6 +619,8 @@ renderOps();renderSettings();renderMenu();renderCart();renderTickets();renderRep
    renderCart();
  }
  document.addEventListener("click", async e=>{
+    const managerCategory=e.target.closest("[data-manager-category]");
+    if(managerCategory){byId("fm-manager-category").value=managerCategory.dataset.managerCategory;renderMenuManager();return;}
    const managerEdit = e.target.closest("[data-manager-edit]");
    if (managerEdit) { e.preventDefault(); e.stopPropagation(); const item=liveMenu.find(m=>String(m.id)===managerEdit.dataset.managerEdit); if(item)openItemEditor(item); return; }
    const edit = e.target.closest("[data-db-edit]");
@@ -542,8 +629,22 @@ renderOps();renderSettings();renderMenu();renderCart();renderTickets();renderRep
    if (add) { e.preventDefault(); e.stopPropagation(); addDbItem(add.dataset.dbAdd, add.dataset.variant || "Regular"); return; }
    if (e.target.closest("[data-db-cancel]")) { closeModal(); return; }
    if (e.target.closest("#supabase-add-item")) { openItemEditor(); return; }
-   if (e.target.closest("#supabase-refresh")) { try { await loadMenu(); notify("Supabase menu refreshed."); } catch(err) { notify("Menu load error: "+err.message); } return; }
+    if (e.target.closest("#supabase-refresh,#fm-manager-refresh")) { try { const errorHost=byId("fm-manager-error");if(errorHost){errorHost.hidden=true;errorHost.textContent="";}await loadMenu();notify("Supabase menu refreshed."); } catch(err) { console.error(err);const errorHost=byId("fm-manager-error");if(errorHost){errorHost.textContent="Menu load failed: "+err.message;errorHost.hidden=false;}notify("Menu load error: "+err.message); } return; }
  });
+ document.addEventListener("submit",e=>{
+  const form=e.target;
+   if(form.id==="db-menu-form"){saveItem(e);return;}
+  if(form.id!=="pos-settings-form")return;
+  e.preventDefault();
+  try{const values=JSON.parse(localStorage.getItem("fm_pos_ui_settings_v1")||"{}");form.querySelectorAll(".settings-form input,.settings-form select,.settings-form textarea").forEach((field,i)=>{values[form.dataset.settingKey+":"+i]=field.type==="checkbox"?field.checked:field.value});localStorage.setItem("fm_pos_ui_settings_v1",JSON.stringify(values));toast(form.dataset.settingName+" saved on this device.");}
+  catch(err){toast("Settings could not be saved: "+err.message);}
+ });
+  document.addEventListener("input",e=>{if(e.target.id==="fm-manager-search")renderMenuManager();});
+  document.addEventListener("change",e=>{
+    if(e.target.id==="fm-manager-category"||e.target.id==="fm-manager-status"){renderMenuManager();return;}
+    const toggle=e.target.closest("[data-manager-toggle]");
+    if(toggle){const item=liveMenu.find(m=>String(m.id)===toggle.dataset.managerToggle);if(item)saveAvailability(item,toggle.checked);}
+  });
  byId("supabase-restaurant").addEventListener("change", async e=>{
    selectedOutlet=e.target.value; state.category="All";
    try { await loadMenu(); } catch(err) { console.error(err); notify("Restaurant menu load error: "+err.message); }
@@ -605,7 +706,7 @@ renderOps();renderSettings();renderMenu();renderCart();renderTickets();renderRep
  // Require explicit login each time the POS page is opened, matching the Owner Panel.
  // Any prior Supabase session is signed out on page load so this screen never skips login.
  (async () => {
-   if (!db) return showLogin("Supabase library load nahi hui. Internet connection check karein.");
+   if (!db) return showLogin(!window.supabase ? "Supabase library load nahi hui. Internet connection check karein." : "Supabase configuration is missing. Check config.js URL and publishable key.");
    try {
      await db.auth.signOut();
    } catch(e) { console.warn("Could not clear previous POS session",e); }
